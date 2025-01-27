@@ -12,8 +12,8 @@ on:
   # tests.
   workflow_dispatch:
     inputs:
-      helioviewer_commit:
-        description: "Helioviewer.org commit hash"
+      helioviewer_pr:
+        description: "Helioviewer.org pull request number"
         required: true
 
 permissions:
@@ -64,7 +64,7 @@ jobs:
         with:
           submodules: true
           path: "helioviewer.org"
-          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.helioviewer_commit || 'main' }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && format('refs/pull/{0}/head', github.event.inputs.helioviewer_pr) || 'main' }}
 
       # For testing, to make sure the correct PR is made
       # Need to test these scenarios:
