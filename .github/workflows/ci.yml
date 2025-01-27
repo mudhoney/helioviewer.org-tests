@@ -1,0 +1,130 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  # Workflow dispatch is used to trigger these tests from the helioviewer.org
+  # repository. It passes the commit so that the tests can run against the code
+  # submitted with the pull request. This lets us run the latest tests
+  # against new pull requests. This may fail if the patch requires updates to
+  # tests.
+  workflow_dispatch:
+    inputs:
+      helioviewer_commit:
+        description: 'Helioviewer.org commit hash'
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  typescript-check:
+    # This only runs on the test code, it does not need to run when testing a
+    # PR from helioviewer.org
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install node dependencies
+      run: npm ci
+
+    - name: Run typescript
+      run: npx tsc -p tests/tsconfig.json --noEmit
+
+  code-style:
+    # This only runs on the test code, it does not need to run when testing a
+    # PR from helioviewer.org
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install node dependencies
+      run: npm ci
+
+    - name: Prettier check (tests and certain files)
+      run: npm run prettier-check
+
+  playwright-e2e-tests:
+    strategy:
+      matrix:
+        shardIndex: [1, 2, 3, 4, 5]
+        shardTotal: [5]
+      fail-fast: false
+
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout the code under test
+      uses: actions/checkout@v4
+      with:
+        submodules: true
+        path: 'helioviewer.org'
+        ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.helioviewer_commit || 'main' }}
+
+    # For testing, to make sure the correct PR is made
+    # Need to test these scenarios:
+    # 1. Testing the latest test commit against the latest hv.org commit
+    # 2. Test the latest test commit against a specific hv.org PR
+    # 3. Test the test PR against the latest hv.org commit
+    # 4. Test the test PR against a specific hv.org PR.
+    - name: Print current commit
+      run: |
+        cd helioviewer.org
+        git rev-parse HEAD
+
+    # - name: Checkout the latest Helioviewer API
+    #   uses: actions/checkout@v4
+    #   with:
+    #     repository: 'Helioviewer-Project/api'
+    #     path: 'api'
+    # - name: Checkout the Dockerfile for local Helioviewer
+    #   uses: actions/checkout@v4
+    #   with:
+    #     repository: 'Helioviewer-Project/helioviewer.org-docker'
+    #     path: 'compose'
+    #     sparse-checkout: |
+    #       compose.yaml
+    #       .env.example
+    #     sparse-checkout-cone-mode: false
+    # - name: Print current directory
+    #   run: |
+    #     echo $(pwd)
+    #     echo $(ls)
+    # - name: Setup environment file
+    #   run: mv compose/.env.example .env
+    # - name: Start local Helioviewer environment
+    #   id: docker
+    #   run: |
+    #     mv compose/compose.yaml .
+    #     docker compose up -d --wait
+    # - name: Show docker compose logs
+    #   if: always()
+    #   run: |
+    #     docker compose logs
+    #     cat compose.yaml
+    # - name: Fix cache directory permissions
+    #   if: always()
+    #   run: |
+    #     docker compose exec web chown 33:33 cache
+    # - uses: actions/setup-node@v4
+    #   with:
+    #     node-version: lts/*
+    # - name: Install Playwright Browsers
+    #   run: |
+    #     cd helioviewer.org
+    #     npx playwright install --with-deps
+    # - name: Run Playwright tests
+    #   run: |
+    #     cd helioviewer.org
+    #     npx playwright test --shard=${{matrix.shardIndex}}/${{matrix.shardTotal}}
+    # - uses: actions/upload-artifact@v4
+    #   if: always()
+    #   with:
+    #     name: playwright-report-${{matrix.shardIndex}}
+    #     path: helioviewer.org/playwright-report/
+    #     retention-days: 7

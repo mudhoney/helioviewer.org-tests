@@ -1,0 +1,11 @@
+{
+  "name": "helioviewer-tests",
+  "scripts": {
+    "prettier": "npx prettier -w resources/js/test resources/js/Media/VideoPlayer.jsx tests",
+    "prettier-check": "npx prettier -c resources/js/test resources/js/Media/VideoPlayer.jsx tests"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.47.1",
+    "prettier": "^3.1.1"
+  }
+}
