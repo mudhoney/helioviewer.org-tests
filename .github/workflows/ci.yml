@@ -95,6 +95,10 @@ jobs:
         run: |
           cd helioviewer.org
           git rev-parse HEAD
+          cd ../api
+          git rev-parse HEAD
+          cd ..
+          git rev-parse HEAD
 
 
     # - name: Checkout the Dockerfile for local Helioviewer
