@@ -12,9 +12,15 @@ on:
   # tests.
   workflow_dispatch:
     inputs:
+      test_pr:
+        description: "Test repository pull request number. If blank, use latest commit"
+        required: false
       helioviewer_pr:
-        description: "Helioviewer.org pull request number"
-        required: true
+        description: "Helioviewer.org pull request number. If blank, use latest commit."
+        required: false
+      api_pr:
+        description: "Helioviewer API pull request number. If blank, use latest commit."
+        required: false
 
 permissions:
   contents: read
@@ -59,13 +65,25 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout the code under test
+      - name: Checkout test code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.test_pr != '' && format('refs/pull/{0}/head', github.event.inputs.test_pr) || 'main' }}
+
+      - name: Checkout Helioviewer.org code being tested
         uses: actions/checkout@v4
         with:
           repository: helioviewer-project/helioviewer.org
           submodules: true
           path: "helioviewer.org"
-          ref: ${{ github.event_name == 'workflow_dispatch' && format('refs/pull/{0}/head', github.event.inputs.helioviewer_pr) || 'main' }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.helioviewer_pr != '' && format('refs/pull/{0}/head', github.event.inputs.helioviewer_pr) || 'main' }}
+
+      - name: Checkout the Helioviewer API code being tested
+        uses: actions/checkout@v4
+        with:
+          repository: 'helioviewer-project/api'
+          path: 'api'
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.api_pr != '' && format('refs/pull/{0}/head', github.event.inputs.api_pr) || 'main' }}
 
       # For testing, to make sure the correct PR is made
       # Need to test these scenarios:
@@ -73,16 +91,12 @@ jobs:
       # 2. Test the latest test commit against a specific hv.org PR
       # 3. Test the test PR against the latest hv.org commit
       # 4. Test the test PR against a specific hv.org PR.
-      - name: Print current commit
+      - name: Print current helioviewer.org commit
         run: |
           cd helioviewer.org
           git rev-parse HEAD
 
-    # - name: Checkout the latest Helioviewer API
-    #   uses: actions/checkout@v4
-    #   with:
-    #     repository: 'Helioviewer-Project/api'
-    #     path: 'api'
+
     # - name: Checkout the Dockerfile for local Helioviewer
     #   uses: actions/checkout@v4
     #   with:
