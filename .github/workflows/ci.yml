@@ -2,9 +2,9 @@ name: Build and Test
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
   # Workflow dispatch is used to trigger these tests from the helioviewer.org
   # repository. It passes the commit so that the tests can run against the code
   # submitted with the pull request. This lets us run the latest tests
@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
     inputs:
       helioviewer_commit:
-        description: 'Helioviewer.org commit hash'
+        description: "Helioviewer.org commit hash"
         required: true
 
 permissions:
@@ -27,13 +27,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Install node dependencies
-      run: npm ci
+      - name: Install node dependencies
+        run: npm ci
 
-    - name: Run typescript
-      run: npx tsc -p tests/tsconfig.json --noEmit
+      - name: Run typescript
+        run: npx tsc -p tests/tsconfig.json --noEmit
 
   code-style:
     # This only runs on the test code, it does not need to run when testing a
@@ -41,13 +41,13 @@ jobs:
     if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Install node dependencies
-      run: npm ci
+      - name: Install node dependencies
+        run: npm ci
 
-    - name: Prettier check (tests and certain files)
-      run: npm run prettier-check
+      - name: Prettier check (tests and certain files)
+        run: npm run prettier-check
 
   playwright-e2e-tests:
     strategy:
@@ -59,23 +59,23 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout the code under test
-      uses: actions/checkout@v4
-      with:
-        submodules: true
-        path: 'helioviewer.org'
-        ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.helioviewer_commit || 'main' }}
+      - name: Checkout the code under test
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          path: "helioviewer.org"
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.helioviewer_commit || 'main' }}
 
-    # For testing, to make sure the correct PR is made
-    # Need to test these scenarios:
-    # 1. Testing the latest test commit against the latest hv.org commit
-    # 2. Test the latest test commit against a specific hv.org PR
-    # 3. Test the test PR against the latest hv.org commit
-    # 4. Test the test PR against a specific hv.org PR.
-    - name: Print current commit
-      run: |
-        cd helioviewer.org
-        git rev-parse HEAD
+      # For testing, to make sure the correct PR is made
+      # Need to test these scenarios:
+      # 1. Testing the latest test commit against the latest hv.org commit
+      # 2. Test the latest test commit against a specific hv.org PR
+      # 3. Test the test PR against the latest hv.org commit
+      # 4. Test the test PR against a specific hv.org PR.
+      - name: Print current commit
+        run: |
+          cd helioviewer.org
+          git rev-parse HEAD
 
     # - name: Checkout the latest Helioviewer API
     #   uses: actions/checkout@v4

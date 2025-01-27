@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from "@playwright/test";
 
 /**
  * Read environment variables from file.
@@ -14,14 +14,14 @@ const Platforms = {
   desktop: /(desktop)/,
   mobileTag: /@Mobile/,
   desktopTag: /@Desktop/
-}
+};
 
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
   timeout: 300000,
-  testDir: './tests',
+  testDir: "./tests",
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -33,68 +33,66 @@ export default defineConfig({
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
     [
-        'list',
-        {
-            printSteps: true,
-        },
+      "list",
+      {
+        printSteps: true
+      }
     ],
-    [
-        'html',
-    ]
+    ["html"]
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:8080',
+    baseURL: "http://localhost:8080",
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    trace: "on-first-retry"
   },
 
   /* Configure projects for major browsers */
   projects: [
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
       grep: Platforms.desktop,
       grepInvert: Platforms.mobileTag
     },
 
     {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      name: "firefox",
+      use: { ...devices["Desktop Firefox"] },
       grep: Platforms.desktop,
       grepInvert: Platforms.mobileTag
     },
 
     {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      name: "webkit",
+      use: { ...devices["Desktop Safari"] },
       grep: Platforms.desktop,
       grepInvert: Platforms.mobileTag
     },
 
     {
-      name: 'edge',
-      use: { ...devices['Desktop Edge'] },
+      name: "edge",
+      use: { ...devices["Desktop Edge"] },
       grep: Platforms.desktop,
       grepInvert: Platforms.mobileTag
     },
 
     /* Test against mobile viewports. */
     {
-      name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
+      name: "Mobile Chrome",
+      use: { ...devices["Pixel 5"] },
       grep: Platforms.mobile,
       grepInvert: Platforms.desktopTag
     },
     {
-      name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
+      name: "Mobile Safari",
+      use: { ...devices["iPhone 12"] },
       grep: Platforms.mobile,
       grepInvert: Platforms.desktopTag
-    },
-  ],
+    }
+  ]
 
   /* Run your local dev server before starting the tests */
   // webServer: {
