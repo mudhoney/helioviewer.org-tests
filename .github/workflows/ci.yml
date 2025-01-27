@@ -62,6 +62,7 @@ jobs:
       - name: Checkout the code under test
         uses: actions/checkout@v4
         with:
+          repository: helioviewer-project/helioviewer.org
           submodules: true
           path: "helioviewer.org"
           ref: ${{ github.event_name == 'workflow_dispatch' && format('refs/pull/{0}/head', github.event.inputs.helioviewer_pr) || 'main' }}
