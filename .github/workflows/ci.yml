@@ -1,4 +1,4 @@
-name: Build and Test
+name: Test helioviewer.org
 
 on:
   push:
@@ -85,65 +85,61 @@ jobs:
           path: 'api'
           ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.api_pr != '' && format('refs/pull/{0}/head', github.event.inputs.api_pr) || 'main' }}
 
-      # For testing, to make sure the correct PR is made
-      # Need to test these scenarios:
-      # 1. Testing the latest test commit against the latest hv.org commit
-      # 2. Test the latest test commit against a specific hv.org PR
-      # 3. Test the test PR against the latest hv.org commit
-      # 4. Test the test PR against a specific hv.org PR.
+      # This workflow is designed so that we can specify exactly which pull
+      # requests we want to test against. This is here for reference of the
+      # exact commit IDs and pull requests are being tested
       - name: Print current helioviewer.org commit
         run: |
           cd helioviewer.org
-          git rev-parse HEAD
+          echo  web commit: $(git rev-parse HEAD). PR: ${{ github.event.inputs.helioviewer_pr || 'N/A' }}
           cd ../api
-          git rev-parse HEAD
+          echo  api commit: $(git rev-parse HEAD). PR: ${{ github.event.inputs.api_pr || 'N/A' }}
           cd ..
-          git rev-parse HEAD
+          echo test commit: $(git rev-parse HEAD). PR: ${{ github.event.inputs.test_pr || 'N/A' }}
 
-
-    # - name: Checkout the Dockerfile for local Helioviewer
-    #   uses: actions/checkout@v4
-    #   with:
-    #     repository: 'Helioviewer-Project/helioviewer.org-docker'
-    #     path: 'compose'
-    #     sparse-checkout: |
-    #       compose.yaml
-    #       .env.example
-    #     sparse-checkout-cone-mode: false
-    # - name: Print current directory
-    #   run: |
-    #     echo $(pwd)
-    #     echo $(ls)
-    # - name: Setup environment file
-    #   run: mv compose/.env.example .env
-    # - name: Start local Helioviewer environment
-    #   id: docker
-    #   run: |
-    #     mv compose/compose.yaml .
-    #     docker compose up -d --wait
-    # - name: Show docker compose logs
-    #   if: always()
-    #   run: |
-    #     docker compose logs
-    #     cat compose.yaml
-    # - name: Fix cache directory permissions
-    #   if: always()
-    #   run: |
-    #     docker compose exec web chown 33:33 cache
-    # - uses: actions/setup-node@v4
-    #   with:
-    #     node-version: lts/*
-    # - name: Install Playwright Browsers
-    #   run: |
-    #     cd helioviewer.org
-    #     npx playwright install --with-deps
-    # - name: Run Playwright tests
-    #   run: |
-    #     cd helioviewer.org
-    #     npx playwright test --shard=${{matrix.shardIndex}}/${{matrix.shardTotal}}
-    # - uses: actions/upload-artifact@v4
-    #   if: always()
-    #   with:
-    #     name: playwright-report-${{matrix.shardIndex}}
-    #     path: helioviewer.org/playwright-report/
-    #     retention-days: 7
+      - name: Checkout the Dockerfile for local Helioviewer
+        uses: actions/checkout@v4
+        with:
+          repository: 'Helioviewer-Project/helioviewer.org-docker'
+          path: 'compose'
+          sparse-checkout: |
+            compose.yaml
+            .env.example
+          sparse-checkout-cone-mode: false
+      - name: Print current directory
+        run: |
+          echo $(pwd)
+          echo $(ls)
+      - name: Setup environment file
+        run: mv compose/.env.example .env
+      - name: Start local Helioviewer environment
+        id: docker
+        run: |
+          mv compose/compose.yaml .
+          docker compose up -d --wait
+      - name: Show docker compose logs
+        if: always()
+        run: |
+          docker compose logs
+          cat compose.yaml
+      - name: Fix cache directory permissions
+        if: always()
+        run: |
+          docker compose exec web chown 33:33 cache
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - name: Install Playwright Browsers
+        run: |
+          cd helioviewer.org
+          npx playwright install --with-deps
+      - name: Run Playwright tests
+        run: |
+          cd helioviewer.org
+          npx playwright test --shard=${{matrix.shardIndex}}/${{matrix.shardTotal}}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-${{matrix.shardIndex}}
+          path: helioviewer.org/playwright-report/
+          retention-days: 7
