@@ -8,17 +8,9 @@ The main branch of tests run automatically when a pull request is made to
 helioviewer.org, or the Helioviewer API repository. This is done through a
 workflow trigger when a pull request is made in one of those repositories.
 
-## Test Scenarios
-
-By default, when a pull request is made, the PR branch is tested against the
-main branches of the test and companion (api or heliovewer.org) repository.
-
-This table shows which branches will be used when tests are triggered.
-| Trigger | api | helioviewer.org | test |
-|---------|-----|-----------------|------|
-| pull request on [api](https://github.com/Helioviewer-Project/api/pulls) | PR | main | main |
-| pull request on [helioviewer.org](https://github.com/Helioviewer-Project/helioviewer.org/pulls) | main | PR | main |
-| pull request on test | main | main | PR |
+At this time, tests must be triggered manually.
+Github doesn't allow triggering a workflow in a separate repository from a pull request.
+We would need to implement a custom solution to make this work.
 
 ### Choosing Branches
 
