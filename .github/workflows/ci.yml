@@ -136,7 +136,6 @@ jobs:
           npx playwright install --with-deps
       - name: Run Playwright tests
         run: |
-          cd tests
           npx playwright test --shard=${{matrix.shardIndex}}/${{matrix.shardTotal}}
       - uses: actions/upload-artifact@v4
         if: always()
