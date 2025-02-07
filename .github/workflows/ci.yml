@@ -70,6 +70,10 @@ jobs:
         with:
           ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.test_pr != '' && format('refs/pull/{0}/head', github.event.inputs.test_pr) || github.ref }}
 
+      - name: Print current directory
+        run: |
+          echo $(pwd)
+          echo $(ls)
       - name: Checkout Helioviewer.org code being tested
         uses: actions/checkout@v4
         with:
@@ -78,12 +82,20 @@ jobs:
           path: "helioviewer.org"
           ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.helioviewer_pr != '' && format('refs/pull/{0}/head', github.event.inputs.helioviewer_pr) || format('refs/pull/{0}/head', '660')  || 'main' }}
 
+      - name: Print current directory
+        run: |
+          echo $(pwd)
+          echo $(ls)
       - name: Checkout the Helioviewer API code being tested
         uses: actions/checkout@v4
         with:
           repository: 'helioviewer-project/api'
           path: 'api'
           ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.api_pr != '' && format('refs/pull/{0}/head', github.event.inputs.api_pr) || 'main' }}
+      - name: Print current directory
+        run: |
+          echo $(pwd)
+          echo $(ls)
 
       # This workflow is designed so that we can specify exactly which pull
       # requests we want to test against. This is here for reference of the
@@ -97,6 +109,10 @@ jobs:
           cd ..
           echo test commit: $(git rev-parse HEAD). PR: ${{ github.event.inputs.test_pr || 'N/A' }}
 
+      - name: Print current directory
+        run: |
+          echo $(pwd)
+          echo $(ls)
       - name: Checkout the Dockerfile for local Helioviewer
         uses: actions/checkout@v4
         with:
@@ -122,6 +138,10 @@ jobs:
         run: |
           docker compose logs
           cat compose.yaml
+      - name: Print current directory
+        run: |
+          echo $(pwd)
+          echo $(ls)
       - name: Fix cache directory permissions
         if: always()
         run: |
