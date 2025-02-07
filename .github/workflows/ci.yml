@@ -58,8 +58,8 @@ jobs:
   playwright-e2e-tests:
     strategy:
       matrix:
-        shardIndex: [1, 2, 3, 4, 5]
-        shardTotal: [5]
+        shardIndex: [1]
+        shardTotal: [1]
       fail-fast: false
 
     timeout-minutes: 60
@@ -168,5 +168,5 @@ jobs:
         if: always()
         with:
           name: playwright-report-${{matrix.shardIndex}}
-          path: tests/playwright-report/
+          path: playwright-report/
           retention-days: 7
