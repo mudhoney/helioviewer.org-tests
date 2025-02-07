@@ -147,7 +147,8 @@ jobs:
         if: always()
         run: |
           docker compose exec web chown 33:33 cache
-      - uses: actions/setup-node@v4
+      - name: Fix cache directory permissions
+        uses: actions/setup-node@v4
         with:
           node-version: lts/*
       - name: Install Playwright Browsers
@@ -157,12 +158,12 @@ jobs:
       - name: Run Playwright tests
         run: |
           npx playwright test --shard=${{matrix.shardIndex}}/${{matrix.shardTotal}} desktop/normal/hello_helioviewer.spec.ts
-
       - name: Print current directory
         run: |
           echo $(pwd)
           echo $(ls)
-      - uses: actions/upload-artifact@v4
+      - name: Print current directory
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report-${{matrix.shardIndex}}
