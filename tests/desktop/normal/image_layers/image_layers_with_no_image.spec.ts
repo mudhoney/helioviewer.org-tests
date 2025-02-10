@@ -11,9 +11,7 @@ test.beforeEach(async ({ page }) => {
     // Add a prefix to the title.
     const newJson = await response.json();
     const xrt = newJson["Hinode"]["XRT"];
-    xrt["Any"] = {
-      Any: xrt["Any"]["Any"]
-    };
+
     xrt["C_poly"] = {
       Any: {
         sourceId: 10012,
@@ -28,15 +26,6 @@ test.beforeEach(async ({ page }) => {
           { label: "Filter Wheel 2", name: "Any" }
         ]
       }
-    };
-    xrt["Al_poly"] = {
-      Open: xrt["Al_poly"]["Open"]
-    };
-    xrt["Be_med"] = {
-      Open: xrt["Be_med"]["Open"]
-    };
-    xrt["Be_thin"] = {
-      Open: xrt["Be_thin"]["Open"]
     };
 
     await route.fulfill({
