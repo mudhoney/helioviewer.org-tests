@@ -58,8 +58,8 @@ jobs:
   playwright-e2e-tests:
     strategy:
       matrix:
-        shardIndex: [1]
-        shardTotal: [1]
+        shardIndex: [1, 2, 3, 4, 5]
+        shardTotal: [5]
       fail-fast: false
 
     timeout-minutes: 60
@@ -70,11 +70,6 @@ jobs:
         with:
           ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.test_pr != '' && format('refs/pull/{0}/head', github.event.inputs.test_pr) || github.ref }}
 
-      - name: Print current directory
-        run: |
-          echo $(pwd)
-          echo $(ls)
-          echo $(ls tests)
       - name: Checkout Helioviewer.org code being tested
         uses: actions/checkout@v4
         with:
@@ -83,10 +78,6 @@ jobs:
           path: "helioviewer.org"
           ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.helioviewer_pr != '' && format('refs/pull/{0}/head', github.event.inputs.helioviewer_pr) || format('refs/pull/{0}/head', '660')  || 'main' }}
 
-      - name: Print current directory
-        run: |
-          echo $(pwd)
-          echo $(ls)
       - name: Checkout the Helioviewer API code being tested
         uses: actions/checkout@v4
         with:
@@ -110,10 +101,6 @@ jobs:
           cd ..
           echo test commit: $(git rev-parse HEAD). PR: ${{ github.event.inputs.test_pr || 'N/A' }}
 
-      - name: Print current directory
-        run: |
-          echo $(pwd)
-          echo $(ls)
       - name: Checkout the Dockerfile for local Helioviewer
         uses: actions/checkout@v4
         with:
@@ -147,7 +134,7 @@ jobs:
         if: always()
         run: |
           docker compose exec web chown 33:33 cache
-      - name: Fix cache directory permissions
+      - name: Install node
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
@@ -158,11 +145,6 @@ jobs:
       - name: Run Playwright tests
         run: |
           npx playwright test --shard=${{matrix.shardIndex}}/${{matrix.shardTotal}}
-      - name: Print current directory
-        if: always()
-        run: |
-          echo $(pwd)
-          echo $(ls)
       - name: Upload Playwright Report
         uses: actions/upload-artifact@v4
         if: always()
