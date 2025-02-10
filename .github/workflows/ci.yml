@@ -157,7 +157,7 @@ jobs:
           npx playwright install --with-deps
       - name: Run Playwright tests
         run: |
-          npx playwright test --shard=${{matrix.shardIndex}}/${{matrix.shardTotal}} desktop/normal/hello_helioviewer.spec.ts
+          npx playwright test --shard=${{matrix.shardIndex}}/${{matrix.shardTotal}}
       - name: Print current directory
         if: always()
         run: |
