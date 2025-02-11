@@ -68,7 +68,7 @@ jobs:
       - name: Checkout test code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.test_pr != '' && format('refs/pull/{0}/head', github.event.inputs.test_pr) || 'main' }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.test_pr != '' && format('refs/pull/{0}/head', github.event.inputs.test_pr) || github.ref }}
 
       - name: Checkout Helioviewer.org code being tested
         uses: actions/checkout@v4
@@ -84,6 +84,10 @@ jobs:
           repository: 'helioviewer-project/api'
           path: 'api'
           ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.api_pr != '' && format('refs/pull/{0}/head', github.event.inputs.api_pr) || 'main' }}
+      - name: Print current directory
+        run: |
+          echo $(pwd)
+          echo $(ls)
 
       # This workflow is designed so that we can specify exactly which pull
       # requests we want to test against. This is here for reference of the
@@ -106,10 +110,6 @@ jobs:
             compose.yaml
             .env.example
           sparse-checkout-cone-mode: false
-      - name: Print current directory
-        run: |
-          echo $(pwd)
-          echo $(ls)
       - name: Setup environment file
         run: mv compose/.env.example .env
       - name: Start local Helioviewer environment
@@ -126,20 +126,21 @@ jobs:
         if: always()
         run: |
           docker compose exec web chown 33:33 cache
-      - uses: actions/setup-node@v4
+      - name: Install node
+        uses: actions/setup-node@v4
         with:
           node-version: lts/*
       - name: Install Playwright Browsers
         run: |
-          cd helioviewer.org
+          npm ci
           npx playwright install --with-deps
       - name: Run Playwright tests
         run: |
-          cd helioviewer.org
           npx playwright test --shard=${{matrix.shardIndex}}/${{matrix.shardTotal}}
-      - uses: actions/upload-artifact@v4
+      - name: Upload Playwright Report
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-report-${{matrix.shardIndex}}
-          path: helioviewer.org/playwright-report/
+          path: playwright-report/
           retention-days: 7

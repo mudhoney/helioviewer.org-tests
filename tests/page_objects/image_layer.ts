@@ -215,6 +215,22 @@ class ImageLayer {
   }
 
   /**
+   * Asserts if layer has base/running difference controles.
+   * @return void
+   */
+  async assertDifferenceControlsVisible(): Promise<void> {
+    await expect(this.layer_controls.locator(".difference-block")).toBeVisible();
+  }
+
+  /**
+   * Asserts if layer has NOT base/running difference controles.
+   * @return void
+   */
+  async assertDifferenceControlsNotVisible(): Promise<void> {
+    await expect(this.layer_controls.locator(".difference-block")).not.toBeVisible();
+  }
+
+  /**
    * Go previous available image for this layer.
    * @return void
    */
@@ -257,6 +273,57 @@ class ImageLayer {
   async getImageHeaderDialog(): Promise<ImageHeaderDialog> {
     const box = await this.page.locator("//div[contains(@aria-describedby, 'image-info-dialog-tile-layer')]");
     return new ImageHeaderDialog(box);
+  }
+
+  /**
+   * Asserts if the layer has no image error message to show.
+   * @return void
+   */
+  async assertHasNoImageTimestampInformation(): Promise<void> {
+    await expect(this.layer_controls.locator(".timestamp")).toHaveText("No Image For This Layer");
+    await expect(this.layer_controls.locator(".timestamp")).toHaveCSS("color", "rgb(255, 255, 0)");
+  }
+
+  /**
+   * Asserts if the layer has at least one image timestamp to show.
+   * @return void
+   */
+  async assertHasImageTimestampInformation(): Promise<void> {
+    await expect(this.layer_controls.locator(".timestamp")).toHaveText(/^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2} UTC$/);
+  }
+
+  /**
+   * Asserts if the layer has image header controls.
+   * @return void
+   */
+  async assertHasImageHeaderControls(): Promise<void> {
+    await expect(this.layer_controls.locator(".image-info-dialog-btn")).toBeEnabled();
+  }
+
+  /**
+   * Asserts if the layer has NO image header controls.
+   * @return void
+   */
+  async assertHasNoImageHeaderControls(): Promise<void> {
+    await expect(this.layer_controls.locator(".image-info-dialog-btn")).toHaveCSS("cursor", "not-allowed");
+    await expect(this.layer_controls.locator(".image-info-dialog-btn")).toHaveCSS("color", "rgb(255, 0, 0)");
+  }
+
+  /**
+   * Asserts if the layer has download jp2 controls.
+   * @return void
+   */
+  async assertHasJp2DownloadControls(): Promise<void> {
+    await expect(this.layer_controls.locator(".image-download-btn")).toBeEnabled();
+  }
+
+  /**
+   * Asserts if the layer has NO download jp2 controls.
+   * @return void
+   */
+  async assertHasNoJp2DownloadControls(): Promise<void> {
+    await expect(this.layer_controls.locator(".image-download-btn")).toHaveCSS("cursor", "not-allowed");
+    await expect(this.layer_controls.locator(".image-download-btn")).toHaveCSS("color", "rgb(255, 0, 0)");
   }
 }
 
