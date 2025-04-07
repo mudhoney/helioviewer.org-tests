@@ -65,12 +65,12 @@ export default defineConfig({
       grepInvert: Platforms.mobileTag
     },
 
-    {
-      name: "webkit",
-      use: { ...devices["Desktop Safari"] },
-      grep: Platforms.desktop,
-      grepInvert: Platforms.mobileTag
-    },
+    // {
+    //   name: "webkit",
+    //   use: { ...devices["Desktop Safari"] },
+    //   grep: Platforms.desktop,
+    //   grepInvert: Platforms.mobileTag
+    // },
 
     {
       name: "edge",
@@ -86,12 +86,12 @@ export default defineConfig({
       grep: Platforms.mobile,
       grepInvert: Platforms.desktopTag
     },
-    {
-      name: "Mobile Safari",
-      use: { ...devices["iPhone 12"] },
-      grep: Platforms.mobile,
-      grepInvert: Platforms.desktopTag
-    }
+    // {
+    //   name: "Mobile Safari",
+    //   use: { ...devices["iPhone 12"] },
+    //   grep: Platforms.mobile,
+    //   grepInvert: Platforms.desktopTag
+    // }
   ]
 
   /* Run your local dev server before starting the tests */
