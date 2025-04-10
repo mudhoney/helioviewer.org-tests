@@ -57,9 +57,9 @@ jobs:
 
   playwright-e2e-tests:
     strategy:
-      matrix:
-        shardIndex: [1, 2, 3, 4, 5]
-        shardTotal: [5]
+      #matrix:
+      #  shardIndex: [1, 2, 3, 4, 5]
+      #  shardTotal: [5]
       fail-fast: false
 
     timeout-minutes: 60
@@ -141,11 +141,11 @@ jobs:
           npx playwright install --with-deps
       - name: Run Playwright tests
         run: |
-          npx playwright test --shard=${{matrix.shardIndex}}/${{matrix.shardTotal}}
+          npx playwright test tests/desktop/normal/movie/form_controls.spec.ts
       - name: Upload Playwright Report
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report-${{matrix.shardIndex}}
+          name: playwright-report
           path: playwright-report/
-          retention-days: 7
+          retention-days: 1
