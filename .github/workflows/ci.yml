@@ -101,11 +101,6 @@ jobs:
           echo  api commit: $(git rev-parse HEAD). PR: ${{ github.event.inputs.api_pr || 'N/A' }}
           cd ..
           echo test commit: $(git rev-parse HEAD). PR: ${{ github.event.inputs.test_pr || 'N/A' }}
-      - name: Show index.php
-        run: |
-          cd helioviewer.org
-          cat index.php
-
       - name: Checkout the Dockerfile for local Helioviewer
         uses: actions/checkout@v4
         with:
