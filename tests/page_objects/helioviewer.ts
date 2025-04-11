@@ -50,6 +50,10 @@ class Helioviewer implements DesktopInterface {
     this.coordinates = new MouseCoordinates(this.page);
   }
 
+  Toggle3D(): Promise<void> {
+    return this.page.locator('.js-3d-toggle').click()
+  }
+
   /**
    * Alias for CloseSidebar to support mobile tests.
    */

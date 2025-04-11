@@ -47,6 +47,9 @@ class HvMobile implements MobileInterface {
     this._drawer = this.page.locator("#hv-drawer-left");
     this._drawer_close_btn = this.page.locator("#hvmobdrawerclose");
   }
+  Toggle3D(): Promise<void> {
+    return this.page.locator('#hvmobscale_div div .js-3d-toggle').click();
+  }
 
   async ExpectLayer(
     index: number,
