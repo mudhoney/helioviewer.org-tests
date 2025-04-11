@@ -17,7 +17,7 @@ import { HelioviewerFactory, MobileView, DesktopView, MobileInterface } from "..
    * This test verifies that the black space does NOT remain, and that the tile does get loaded
    * when it is dragged into the viewport.
    */
-  test.only(
+  test(
     `[${view.name}] Verify 3D view opens and runs`,
     { tag: view.tag },
     async ({ page }, info) => {
