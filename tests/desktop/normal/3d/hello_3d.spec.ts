@@ -25,6 +25,7 @@ import { HelioviewerFactory, MobileView, DesktopView, MobileInterface } from "..
       await hv.Load("/");
       await hv.Toggle3D();
       await hv.WaitForLoadingComplete();
+      await hv.CloseAllNotifications();
       await expect(page).toHaveScreenshot();
     });
 });
