@@ -6,6 +6,18 @@ import {
   MobileInterface
 } from "../../../page_objects/helioviewer_interface";
 
+const gse2frameResponse = {
+  "coordinates": [
+      {
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "time": "2024-12-31T00:05:00.000"
+      }
+    ]
+};
+
+
 [MobileView, DesktopView].forEach((view) => {
   /**
    * A recurring issue in Helioviewer deals with computing which tiles should
@@ -27,7 +39,13 @@ import {
     await hv.Load("/");
     await hv.WaitForLoadingComplete();
     await hv.CloseAllNotifications();
-    const response = page.waitForResponse("**/gse2frame", { timeout: 10000 });
+    const response = page.route('**/gse2frame', async route => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify(gse2frameResponse)
+      });
+    });
     await hv.Toggle3D();
     await response;
     await expect(page).toHaveScreenshot();
