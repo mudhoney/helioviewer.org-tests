@@ -45,9 +45,16 @@ const gse2frameResponse = {
         contentType: 'application/json',
         body: JSON.stringify(gse2frameResponse)
       });
-    });
+    }, { times: 2 });
+    // This is the 3D model that the image will be rendered onto.
+    const glbResponse = page.waitForResponse('**/zit.glb');
+
+    // Now start 3D
     await hv.Toggle3D();
+    // Wait for the network requests to complete
     await response;
+    // Expect the model to be loaded.
+    await glbResponse
     // Wait for the page to process the result by rendering the image.
     await page.waitForTimeout(1000);
     await expect(page).toHaveScreenshot();
