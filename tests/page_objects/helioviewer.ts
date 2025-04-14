@@ -51,7 +51,7 @@ class Helioviewer implements DesktopInterface {
   }
 
   Toggle3D(): Promise<void> {
-    return this.page.locator('.js-3d-toggle').click()
+    return this.page.locator(".js-3d-toggle").click();
   }
 
   /**

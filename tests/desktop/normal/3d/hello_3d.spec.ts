@@ -1,5 +1,10 @@
 import { test, expect } from "@playwright/test";
-import { HelioviewerFactory, MobileView, DesktopView, MobileInterface } from "../../../page_objects/helioviewer_interface";
+import {
+  HelioviewerFactory,
+  MobileView,
+  DesktopView,
+  MobileInterface
+} from "../../../page_objects/helioviewer_interface";
 
 [MobileView, DesktopView].forEach((view) => {
   /**
@@ -17,15 +22,12 @@ import { HelioviewerFactory, MobileView, DesktopView, MobileInterface } from "..
    * This test verifies that the black space does NOT remain, and that the tile does get loaded
    * when it is dragged into the viewport.
    */
-  test(
-    `[${view.name}] Verify 3D view opens and runs`,
-    { tag: view.tag },
-    async ({ page }, info) => {
-      let hv = HelioviewerFactory.Create(view, page, info) as MobileInterface;
-      await hv.Load("/");
-      await hv.Toggle3D();
-      await hv.WaitForLoadingComplete();
-      await hv.CloseAllNotifications();
-      await expect(page).toHaveScreenshot();
-    });
+  test(`[${view.name}] Verify 3D view opens and runs`, { tag: view.tag }, async ({ page }, info) => {
+    let hv = HelioviewerFactory.Create(view, page, info) as MobileInterface;
+    await hv.Load("/");
+    await hv.Toggle3D();
+    await hv.WaitForLoadingComplete();
+    await hv.CloseAllNotifications();
+    await expect(page).toHaveScreenshot();
+  });
 });

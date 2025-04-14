@@ -67,7 +67,7 @@ interface MobileInterface extends MinimalInterface {
   /**
    * Toggle 3D view
    */
-  Toggle3D(): Promise<void>
+  Toggle3D(): Promise<void>;
 
   /**
    * Opens the drawer which contains image layer information
