@@ -22,12 +22,14 @@ import {
    * This test verifies that the black space does NOT remain, and that the tile does get loaded
    * when it is dragged into the viewport.
    */
-  test(`[${view.name}] Verify 3D view opens and runs`, { tag: view.tag }, async ({ page }, info) => {
+  test.only(`[${view.name}] Verify 3D view opens and runs`, { tag: view.tag }, async ({ page }, info) => {
     let hv = HelioviewerFactory.Create(view, page, info) as MobileInterface;
     await hv.Load("/");
-    await hv.Toggle3D();
     await hv.WaitForLoadingComplete();
     await hv.CloseAllNotifications();
+    const response = page.waitForResponse("**/gse2frame", { timeout: 10000 });
+    await hv.Toggle3D();
+    await response;
     await expect(page).toHaveScreenshot();
   });
 });
