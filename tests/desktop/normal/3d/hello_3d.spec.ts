@@ -48,6 +48,8 @@ const gse2frameResponse = {
     });
     await hv.Toggle3D();
     await response;
+    // Wait for the page to process the result by rendering the image.
+    await page.waitForTimeout(1000);
     await expect(page).toHaveScreenshot();
   });
 });
