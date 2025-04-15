@@ -68,7 +68,7 @@ async function Initialize3D(hv: MobileInterface, page: Page) {
    * This test verifies that the black space does NOT remain, and that the tile does get loaded
    * when it is dragged into the viewport.
    */
-  test.only(`[${view.name}] Verify 3D view opens and runs`, { tag: view.tag }, async ({ page }, info) => {
+  test(`[${view.name}] Verify 3D view opens and runs`, { tag: view.tag }, async ({ page }, info) => {
     // Firefox in playwright does not allow webgl2 creation.
     // May need to test manually on a firefox installation, but it is working
     // in other browsers
@@ -81,7 +81,7 @@ async function Initialize3D(hv: MobileInterface, page: Page) {
     await expect(page).toHaveScreenshot();
   });
 
-  test.only(`[${view.name}] Turn sun sideways`, { tag: view.tag }, async ({ page }, info) => {
+  test(`[${view.name}] Turn sun sideways`, { tag: view.tag }, async ({ page }, info) => {
     // Firefox in playwright does not allow webgl2 creation.
     // May need to test manually on a firefox installation, but it is working
     // in other browsers
