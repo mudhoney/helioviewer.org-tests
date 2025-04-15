@@ -7,14 +7,14 @@ import {
 } from "../../../page_objects/helioviewer_interface";
 
 const gse2frameResponse = {
-  "coordinates": [
-      {
-          "x": 0,
-          "y": 0,
-          "z": 0,
-          "time": "2024-12-31T00:05:00.000"
-      }
-    ]
+  coordinates: [
+    {
+      x: 0,
+      y: 0,
+      z: 0,
+      time: "2024-12-31T00:05:00.000"
+    }
+  ]
 };
 
 /**
@@ -28,22 +28,26 @@ async function Initialize3D(hv: MobileInterface, page: Page) {
   await hv.SetObservationDateTimeFromDate(new Date("2024-12-31 00:00:00"));
   await hv.WaitForLoadingComplete();
   await hv.CloseAllNotifications();
-  const response = page.route('**/gse2frame', async route => {
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(gse2frameResponse)
-    });
-  }, { times: 2 });
+  const response = page.route(
+    "**/gse2frame",
+    async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(gse2frameResponse)
+      });
+    },
+    { times: 2 }
+  );
   // This is the 3D model that the image will be rendered onto.
-  const glbResponse = page.waitForResponse('**/zit.glb');
+  const glbResponse = page.waitForResponse("**/zit.glb");
 
   // Now start 3D
   await hv.Toggle3D();
   // Wait for the network requests to complete
   await response;
   // Expect the model to be loaded.
-  await glbResponse
+  await glbResponse;
   // Wait for the page to process the result by rendering the image.
   await page.waitForTimeout(1000);
 }
@@ -68,7 +72,7 @@ async function Initialize3D(hv: MobileInterface, page: Page) {
     // Firefox in playwright does not allow webgl2 creation.
     // May need to test manually on a firefox installation, but it is working
     // in other browsers
-    if (page.context().browser().browserType().name() === 'firefox') {
+    if (page.context().browser().browserType().name() === "firefox") {
       test.skip();
     }
 
@@ -81,7 +85,7 @@ async function Initialize3D(hv: MobileInterface, page: Page) {
     // Firefox in playwright does not allow webgl2 creation.
     // May need to test manually on a firefox installation, but it is working
     // in other browsers
-    if (page.context().browser().browserType().name() === 'firefox') {
+    if (page.context().browser().browserType().name() === "firefox") {
       test.skip();
     }
 
