@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, Page } from "@playwright/test";
 import {
   HelioviewerFactory,
   MobileView,
@@ -17,6 +17,36 @@ const gse2frameResponse = {
     ]
 };
 
+/**
+ * Helper function to set up the 3D scene for tests.
+ */
+async function Initialize3D(hv: MobileInterface, page: Page) {
+  await hv.Load("/");
+  await hv.WaitForLoadingComplete();
+  await hv.CloseAllNotifications();
+  // Set the observation date to a date with available data.
+  await hv.SetObservationDateTimeFromDate(new Date("2024-12-31 00:00:00"));
+  await hv.WaitForLoadingComplete();
+  await hv.CloseAllNotifications();
+  const response = page.route('**/gse2frame', async route => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(gse2frameResponse)
+    });
+  }, { times: 2 });
+  // This is the 3D model that the image will be rendered onto.
+  const glbResponse = page.waitForResponse('**/zit.glb');
+
+  // Now start 3D
+  await hv.Toggle3D();
+  // Wait for the network requests to complete
+  await response;
+  // Expect the model to be loaded.
+  await glbResponse
+  // Wait for the page to process the result by rendering the image.
+  await page.waitForTimeout(1000);
+}
 
 [MobileView, DesktopView].forEach((view) => {
   /**
@@ -35,28 +65,33 @@ const gse2frameResponse = {
    * when it is dragged into the viewport.
    */
   test.only(`[${view.name}] Verify 3D view opens and runs`, { tag: view.tag }, async ({ page }, info) => {
-    let hv = HelioviewerFactory.Create(view, page, info) as MobileInterface;
-    await hv.Load("/");
-    await hv.WaitForLoadingComplete();
-    await hv.CloseAllNotifications();
-    const response = page.route('**/gse2frame', async route => {
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(gse2frameResponse)
-      });
-    }, { times: 2 });
-    // This is the 3D model that the image will be rendered onto.
-    const glbResponse = page.waitForResponse('**/zit.glb');
+    // Firefox in playwright does not allow webgl2 creation.
+    // May need to test manually on a firefox installation, but it is working
+    // in other browsers
+    if (page.context().browser().browserType().name() === 'firefox') {
+      test.skip();
+    }
 
-    // Now start 3D
-    await hv.Toggle3D();
-    // Wait for the network requests to complete
-    await response;
-    // Expect the model to be loaded.
-    await glbResponse
-    // Wait for the page to process the result by rendering the image.
-    await page.waitForTimeout(1000);
+    let hv = HelioviewerFactory.Create(view, page, info) as MobileInterface;
+    await Initialize3D(hv, page);
+    await expect(page).toHaveScreenshot();
+  });
+
+  test.only(`[${view.name}] Turn sun sideways`, { tag: view.tag }, async ({ page }, info) => {
+    // Firefox in playwright does not allow webgl2 creation.
+    // May need to test manually on a firefox installation, but it is working
+    // in other browsers
+    if (page.context().browser().browserType().name() === 'firefox') {
+      test.skip();
+    }
+
+    let hv = HelioviewerFactory.Create(view, page, info) as MobileInterface;
+    await Initialize3D(hv, page);
+    // Drag to the right to rotate the sun.
+    await page.mouse.move(page.viewportSize().width / 2, page.viewportSize().height / 3);
+    await page.mouse.down();
+    await page.mouse.move(page.viewportSize().width / 2 + 100, page.viewportSize().height / 3);
+    await page.mouse.up();
     await expect(page).toHaveScreenshot();
   });
 });
