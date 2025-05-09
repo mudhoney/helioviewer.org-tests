@@ -68,7 +68,6 @@ jobs:
       - name: Checkout test code
         uses: actions/checkout@v4
         with:
-          repository: helioviewer-project/helioviewer.org-tests
           ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.test_pr != '' && format('refs/pull/{0}/head', github.event.inputs.test_pr) || github.ref }}
 
       - name: Checkout Helioviewer.org code being tested
@@ -77,14 +76,14 @@ jobs:
           repository: helioviewer-project/helioviewer.org
           submodules: true
           path: "helioviewer.org"
-          ref: refs/pull/668/head
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.helioviewer_pr != '' && format('refs/pull/{0}/head', github.event.inputs.helioviewer_pr) || 'main' }}
 
       - name: Checkout the Helioviewer API code being tested
         uses: actions/checkout@v4
         with:
           repository: 'helioviewer-project/api'
           path: 'api'
-          ref: refs/pull/432/head
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.api_pr != '' && format('refs/pull/{0}/head', github.event.inputs.api_pr) || 'main' }}
       - name: Print current directory
         run: |
           echo $(pwd)
@@ -137,9 +136,9 @@ jobs:
       - name: Run Playwright tests
         run: |
           npx playwright test --shard=${{matrix.shardIndex}}/${{matrix.shardTotal}}
-      - name: Upload blob report to GitHub Actions Artifacts
-        if: ${{ !cancelled() }}
+      - name: Upload Playwright Report
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: blob-report-${{ matrix.shardIndex }}
           path: blob-report
@@ -172,4 +171,4 @@ jobs:
       with:
         name: html-report--attempt-${{ github.run_attempt }}
         path: playwright-report
-        retention-days: 3
+        retention-days: 1
