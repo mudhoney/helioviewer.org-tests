@@ -29,3 +29,4 @@ test_dir="../tests"
 
 echo cp "$actual" "$test_dir/$test-snapshots/$attachmentName"
 cp "$actual" "$test_dir/$test-snapshots/$attachmentName"
+git add -f "$test_dir/$test-snapshots/$attachmentName"
