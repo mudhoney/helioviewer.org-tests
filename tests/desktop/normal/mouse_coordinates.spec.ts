@@ -125,7 +125,8 @@ test("Test cartesian coordinates at sun edges after partial zoom", async ({ page
   // This amount zooms in to make the image about 20% larger.
   // The effective image scale changes from 4.84 arcseconds per pixel to 3.872 arcseconds per pixel.
   await page.mouse.wheel(0, -50);
-  await page.waitForTimeout(250);
+  // Wait long enough for the zoom to complete
+  await page.waitForTimeout(500);
   await hv.saveScreenshot();
 
   // 3. Move the mouse to the top of the sun.
@@ -188,7 +189,8 @@ test("Test radial coordinates at sun edges after partial zoom", async ({ page },
   // This amount zooms in to make the image about 20% larger.
   // The effective image scale changes from 4.84 arcseconds per pixel to 3.872 arcseconds per pixel.
   await page.mouse.wheel(0, -50);
-  await page.waitForTimeout(250);
+  // Wait long enough for the zoom to complete
+  await page.waitForTimeout(500);
   await hv.saveScreenshot();
 
   // 3. Change to radial coordinates
