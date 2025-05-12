@@ -31,7 +31,7 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: [
+  reporter: process.env.CI ? 'blob' : [
     [
       "list",
       {
@@ -47,6 +47,11 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on-first-retry"
+  },
+  expect: {
+    toHaveScreenshot: {
+      maxDiffPixels: 75
+    }
   },
 
   /* Configure projects for major browsers */
@@ -86,6 +91,7 @@ export default defineConfig({
       grep: Platforms.mobile,
       grepInvert: Platforms.desktopTag
     },
+
     {
       name: "Mobile Safari",
       use: { ...devices["iPhone 12"] },

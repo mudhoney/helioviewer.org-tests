@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Failed Tests</title>
+    <style>
+        .test { margin-bottom: 20px; }
+        .image-container { display: inline-block; margin-right: 10px; text-align: center; }
+        img { max-width: 500px; cursor: pointer; }
+        .caption { margin-top: 5px; font-style: italic; }
+        .attachment-name { margin-top: 3px; font-size: 0.9em; color: #666; }
+        .fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .fullscreen img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+        .copy-button {
+            margin-top: 10px;
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="tests"></div>
+
+    <script>
+        fetch('failed_tests.json')
+            .then(response => response.json())
+            .then(data => {
+                const testsDiv = document.getElementById('tests');
+                console.log(data);
+                data.forEach(test => {
+                    const testDiv = document.createElement('div');
+                    testDiv.className = 'test';
+
+                    // Find attachments by name
+                    const expectedAttachment = test.results[0].attachments.find(a => a.name.toLowerCase().includes('expected'));
+                    const actualAttachment = test.results[0].attachments.find(a => a.name.toLowerCase().includes('actual'));
+                    const diffAttachment = test.results[0].attachments.find(a => a.name.toLowerCase().includes('diff'));
+
+                    testDiv.innerHTML = `
+                        <h2>${test.title}</h2>
+                        <p>File: ${test.location.file}</p>
+                        <p>Project: ${test.projectName}</p>
+
+                        ${expectedAttachment ? `
+                        <div class="image-container">
+                                <img src="${expectedAttachment.path}" alt="Expected" onclick="fullScreen(this)">
+                            <div class="caption">Expected</div>
+                            <div class="attachment-name">${expectedAttachment.name}</div>
+                            <div class="attachment-name">${expectedAttachment.path}</div>
+                        </div>
+                        ` : ''}
+                        ${actualAttachment ? `
+                            <div class="image-container">
+                                <img src="${actualAttachment.path}" alt="Actual" onclick="fullScreen(this)">
+                                <div class="caption">Actual</div>
+                                <div class="attachment-name">${actualAttachment.name}</div>
+                                <div class="attachment-name">${actualAttachment.path}</div>
+                        </div>
+                        ` : ''}
+                        ${diffAttachment ? `
+                            <div class="image-container">
+                                <img src="${diffAttachment.path}" alt="Diff" onclick="fullScreen(this)">
+                                <div class="caption">Diff</div>
+                                <div class="attachment-name">${diffAttachment.name}</div>
+                                <div class="attachment-name">${diffAttachment.path}</div>
+                            </div>
+                        ` : ''}
+                        ${actualAttachment ? `
+                            <button class="copy-button" onclick="copyImages('${test.location.file}', '${actualAttachment.path}', '${test.projectName}', '${actualAttachment.name}')">Copy Images</button>
+                        ` : ''}
+                    `;
+                    testsDiv.appendChild(testDiv);
+                });
+            });
+
+        function fullScreen(img) {
+            const fullscreenDiv = document.createElement('div');
+            fullscreenDiv.className = 'fullscreen';
+            fullscreenDiv.innerHTML = `<img src="${img.src}" alt="${img.alt}">`;
+            fullscreenDiv.onclick = () => fullscreenDiv.remove();
+            document.body.appendChild(fullscreenDiv);
+        }
+
+        function copyImages(testFile, actual, projectName, attachmentName) {
+            const url = `/cgi-bin/copy_image.sh?test=${encodeURIComponent(testFile)}&actual=${encodeURIComponent(actual)}&projectName=${encodeURIComponent(projectName)}&attachmentName=${encodeURIComponent(attachmentName)}`;
+            fetch(url)
+                .then(response => response.text())
+                .then(result => {
+                    alert('Images copied successfully');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to copy images');
+                });
+        }
+    </script>
+</body>
+</html>
+

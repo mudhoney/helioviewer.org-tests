@@ -47,6 +47,9 @@ class HvMobile implements MobileInterface {
     this._drawer = this.page.locator("#hv-drawer-left");
     this._drawer_close_btn = this.page.locator("#hvmobdrawerclose");
   }
+  Toggle3D(): Promise<void> {
+    return this.page.locator("#hvmobscale_div div .js-3d-toggle").click();
+  }
 
   async ExpectLayer(
     index: number,
@@ -350,8 +353,10 @@ class HvMobile implements MobileInterface {
     await this._controls.getByLabel("Observation date", { exact: true }).fill(date);
 
     await this.page.waitForSelector("#hvmobtime_td > #time");
-
     await this.page.evaluate(`document.querySelector("#hvmobtime_td > #time")._flatpickr.setDate("${time}",true)`);
+
+    // Close flatpicker datepicker after inputting time.
+    await this.page.evaluate("document.querySelector('#hvmobdate_td > #date')._flatpickr.close()");
   }
 
   async SetObservationDateTimeFromDate(date: Date): Promise<void> {
