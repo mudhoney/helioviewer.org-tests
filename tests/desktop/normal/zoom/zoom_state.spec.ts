@@ -6,7 +6,7 @@ import { Helioviewer } from "../../../page_objects/helioviewer";
  */
 test("Zoom scale is persisted across reload", async ({ page }, info) => {
   // Skip for webkit because this is extremely flaky on it.
-  test.skip(({ browserName }) => browserName === 'webkit', 'Skipping test for WebKit');
+  test.skip(({ browserName }) => browserName === "webkit", "Skipping test for WebKit");
 
   let hv = new Helioviewer(page);
   await hv.Load();
