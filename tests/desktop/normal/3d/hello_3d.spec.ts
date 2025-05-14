@@ -99,7 +99,13 @@ async function Initialize3D(hv: MobileInterface, page: Page) {
     await expect(page).toHaveScreenshot();
   });
 
-  test.only(`[${view.name}] Load State without enable3d in state`, { tag: view.tag }, async ({ page }, info) => {
+  /**
+   * Runs the LoadState 3D tests.
+   * This test verifies that the UI is updated to reflect that 3D is enabled or disabled.
+   * @param getWebClientStateResponse JSON response to return from the getWebClientStateRequest to simulate loadState
+   * @param expectFn Runs expects for the page.
+   */
+  const LoadState3DTest = async (page, info, getWebClientStateResponse, expectFn) => {
     // Firefox in playwright does not allow webgl2 creation.
     // May need to test manually on a firefox installation, but it is working
     // in other browsers
@@ -108,13 +114,13 @@ async function Initialize3D(hv: MobileInterface, page: Page) {
     }
 
     let hv = HelioviewerFactory.Create(view, page, info) as MobileInterface;
-    const webClientStateRequest = page.waitForRequest('**/getWebClientState');
+
     // Set up listener for loading the web client state
-    await page.route('**/getWebClientState**', async (route) => {
+    const webClientStateRequest = page.route("**/?action=getWebClientState&state_id=something", async (route) => {
       await route.fulfill({
         status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify(loadState3dResponse)
+        contentType: "application/json",
+        body: JSON.stringify(getWebClientStateResponse)
       });
     });
 
@@ -123,14 +129,211 @@ async function Initialize3D(hv: MobileInterface, page: Page) {
     await hv.Load("/?loadState=something");
     await webClientStateRequest;
     await hv.WaitForLoadingComplete();
+    await expectFn();
+  };
 
-    // After the page has loaded, we expect enable3d to be false
-    expect(await page.evaluate(() => eval("Helioviewer.userSettings.get('state.enable3d')"))).toBe(false);
-    // 3d button should not be active (no 3d buttons with active css)
-    expect(await page.locator(".js-3d-toggle.active").count()).toBe(0);
-    // No elements should be hidden for 3d
-    expect(await page.locator(".toggle-3d.masked").count()).toBe(0);
+  test(`[${view.name}] Load State without enable3d in state`, { tag: view.tag }, async ({ page }, info) => {
+    await LoadState3DTest(page, info, loadStateNo3DInState, async () => {
+      // After the page has loaded, we expect enable3d to be false
+      expect(await page.evaluate(() => eval("Helioviewer.userSettings.get('state.enable3d')"))).toBe(false);
+      // 3d button should not be active (no 3d buttons with active css)
+      expect(await page.locator(".js-3d-toggle.active").count()).toBe(0);
+      // No elements should be hidden for 3d
+      expect(await page.locator(".toggle3d.masked").count()).toBe(0);
+    });
+  });
+
+  test(`[${view.name}] Load State with enable3d = false`, { tag: view.tag }, async ({ page }, info) => {
+    await LoadState3DTest(page, info, loadState3DDisabled, async () => {
+      // After the page has loaded, we expect enable3d to be false
+      expect(await page.evaluate(() => eval("Helioviewer.userSettings.get('state.enable3d')"))).toBe(false);
+      // 3d button should not be active (no 3d buttons with active css)
+      expect(await page.locator(".js-3d-toggle.active").count()).toBe(0);
+      // No elements should be hidden for 3d
+      expect(await page.locator(".toggle3d.masked").count()).toBe(0);
+    });
+  });
+
+  test(`[${view.name}] Load State with enable3d = true`, { tag: view.tag }, async ({ page }, info) => {
+    await LoadState3DTest(page, info, loadState3DEnabled, async () => {
+      // After the page has loaded, we expect enable3d to be false
+      expect(await page.evaluate(() => eval("Helioviewer.userSettings.get('state.enable3d')"))).toBe(true);
+      await page.waitForTimeout(1000);
+      // 3d button should not be active (no 3d buttons with active css)
+      expect(await page.locator(".js-3d-toggle.active").count()).toBeGreaterThan(0);
+      // No elements should be hidden for 3d
+      expect(await page.locator(".toggle3d.masked").count()).toBeGreaterThan(0);
+    });
   });
 });
 
-const loadState3dResponse = {"status_code":200,"status_txt":"OK","data":{"date":1735603271000,"imageScale":4.84088176,"centerX":-174.58208757126707,"centerY":-128.78993573759288,"imageLayers":[{"visible":true,"opacity":100,"uiLabels":[{"label":"Observatory","name":"SDO"},{"label":"Instrument","name":"AIA"},{"label":"Measurement","name":"94"}],"difference":0,"diffCount":60,"diffTime":1,"baseDiffTime":"2025-05-13T17:49:32.000Z","sourceId":8,"Observatory":"SDO","Instrument":"AIA","Measurement":"94"}],"eventLayers":{"tree_HEK":{"id":"HEK","visible":true,"markers_visible":true,"labels_visible":true,"layer_available_visible":true,"layers":[]},"tree_CCMC":{"id":"CCMC","visible":true,"markers_visible":true,"labels_visible":true,"layer_available_visible":true,"layers":[]},"tree_RHESSI":{"id":"RHESSI","visible":true,"markers_visible":true,"labels_visible":true,"layer_available_visible":true,"layers":[]}},"celestialBodies":{"soho":[],"stereo_a":[],"stereo_b":[]},"enable3d":false}};
+const loadStateNo3DInState = {
+  status_code: 200,
+  status_txt: "OK",
+  data: {
+    date: 1735603271000,
+    imageScale: 4.84088176,
+    centerX: -174.58208757126707,
+    centerY: -128.78993573759288,
+    imageLayers: [
+      {
+        visible: true,
+        opacity: 100,
+        uiLabels: [
+          { label: "Observatory", name: "SDO" },
+          { label: "Instrument", name: "AIA" },
+          { label: "Measurement", name: "94" }
+        ],
+        difference: 0,
+        diffCount: 60,
+        diffTime: 1,
+        baseDiffTime: "2025-05-13T17:49:32.000Z",
+        sourceId: 8,
+        Observatory: "SDO",
+        Instrument: "AIA",
+        Measurement: "94"
+      }
+    ],
+    eventLayers: {
+      tree_HEK: {
+        id: "HEK",
+        visible: true,
+        markers_visible: true,
+        labels_visible: true,
+        layer_available_visible: true,
+        layers: []
+      },
+      tree_CCMC: {
+        id: "CCMC",
+        visible: true,
+        markers_visible: true,
+        labels_visible: true,
+        layer_available_visible: true,
+        layers: []
+      },
+      tree_RHESSI: {
+        id: "RHESSI",
+        visible: true,
+        markers_visible: true,
+        labels_visible: true,
+        layer_available_visible: true,
+        layers: []
+      }
+    },
+    celestialBodies: { soho: [], stereo_a: [], stereo_b: [] }
+  }
+};
+const loadState3DDisabled = {
+  status_code: 200,
+  status_txt: "OK",
+  data: {
+    date: 1735603271000,
+    imageScale: 4.84088176,
+    centerX: -174.58208757126707,
+    centerY: -128.78993573759288,
+    imageLayers: [
+      {
+        visible: true,
+        opacity: 100,
+        uiLabels: [
+          { label: "Observatory", name: "SDO" },
+          { label: "Instrument", name: "AIA" },
+          { label: "Measurement", name: "94" }
+        ],
+        difference: 0,
+        diffCount: 60,
+        diffTime: 1,
+        baseDiffTime: "2025-05-13T17:49:32.000Z",
+        sourceId: 8,
+        Observatory: "SDO",
+        Instrument: "AIA",
+        Measurement: "94"
+      }
+    ],
+    eventLayers: {
+      tree_HEK: {
+        id: "HEK",
+        visible: true,
+        markers_visible: true,
+        labels_visible: true,
+        layer_available_visible: true,
+        layers: []
+      },
+      tree_CCMC: {
+        id: "CCMC",
+        visible: true,
+        markers_visible: true,
+        labels_visible: true,
+        layer_available_visible: true,
+        layers: []
+      },
+      tree_RHESSI: {
+        id: "RHESSI",
+        visible: true,
+        markers_visible: true,
+        labels_visible: true,
+        layer_available_visible: true,
+        layers: []
+      }
+    },
+    celestialBodies: { soho: [], stereo_a: [], stereo_b: [] },
+    enable3d: false
+  }
+};
+const loadState3DEnabled = {
+  status_code: 200,
+  status_txt: "OK",
+  data: {
+    date: 1735603271000,
+    imageScale: 4.84088176,
+    centerX: -174.58208757126707,
+    centerY: -128.78993573759288,
+    imageLayers: [
+      {
+        visible: true,
+        opacity: 100,
+        uiLabels: [
+          { label: "Observatory", name: "SDO" },
+          { label: "Instrument", name: "AIA" },
+          { label: "Measurement", name: "94" }
+        ],
+        difference: 0,
+        diffCount: 60,
+        diffTime: 1,
+        baseDiffTime: "2025-05-13T17:49:32.000Z",
+        sourceId: 8,
+        Observatory: "SDO",
+        Instrument: "AIA",
+        Measurement: "94"
+      }
+    ],
+    eventLayers: {
+      tree_HEK: {
+        id: "HEK",
+        visible: true,
+        markers_visible: true,
+        labels_visible: true,
+        layer_available_visible: true,
+        layers: []
+      },
+      tree_CCMC: {
+        id: "CCMC",
+        visible: true,
+        markers_visible: true,
+        labels_visible: true,
+        layer_available_visible: true,
+        layers: []
+      },
+      tree_RHESSI: {
+        id: "RHESSI",
+        visible: true,
+        markers_visible: true,
+        labels_visible: true,
+        layer_available_visible: true,
+        layers: []
+      }
+    },
+    celestialBodies: { soho: [], stereo_a: [], stereo_b: [] },
+    enable3d: true
+  }
+};
