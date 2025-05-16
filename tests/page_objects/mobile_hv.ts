@@ -75,8 +75,8 @@ class HvMobile implements MobileInterface {
   }
 
   /** Navigates to the mobile helioviewer page */
-  async Load() {
-    await this.page.goto("/");
+  async Load(path: string = "/") {
+    await this.page.goto(path);
     await this.page.evaluate(() => console.log(localStorage.getItem("settings")));
     // Wait for the first image layer to be loaded
     await this._WaitForInitialImageLayer();
