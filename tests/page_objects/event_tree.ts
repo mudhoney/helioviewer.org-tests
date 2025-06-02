@@ -91,7 +91,7 @@ class EventTree {
    * @return void promise about the task is done
    **/
   async toggleCheckEventType(event_type: string) {
-    await this.page.getByTestId(`event-tree-checkbox-${this.source+">>"+event_type}`).click()
+    await this.page.getByTestId(`event-tree-checkbox-${this.source + ">>" + event_type}`).click();
   }
 
   /**
@@ -102,7 +102,7 @@ class EventTree {
    * @return void promise about the task is done
    **/
   async toggleCheckFRM(event_type: string, frm: string) {
-    await this.page.getByTestId(`event-tree-checkbox-${this.source+">>"+event_type+">>"+frm}`).click()
+    await this.page.getByTestId(`event-tree-checkbox-${this.source + ">>" + event_type + ">>" + frm}`).click();
   }
 
   /**
@@ -114,7 +114,9 @@ class EventTree {
    * @return void promise about the task is done
    **/
   async toggleCheckEventInstance(event_type: string, frm: string, event_instance: string) {
-    await this.page.getByTestId(`event-tree-checkbox-${this.source+">>"+event_type+">>"+frm+">>"+event_instance}`).click()
+    await this.page
+      .getByTestId(`event-tree-checkbox-${this.source + ">>" + event_type + ">>" + frm + ">>" + event_instance}`)
+      .click();
   }
 
   /**
@@ -125,7 +127,7 @@ class EventTree {
    * @return void promise about the task is done
    **/
   async toggleBranchFRM(event_type: string, frm: string) {
-    await this.page.getByTestId(`event-tree-expand-triangle-${this.source+">>"+event_type+">>"+frm}`).click()
+    await this.page.getByTestId(`event-tree-expand-triangle-${this.source + ">>" + event_type + ">>" + frm}`).click();
   }
 
   /**
@@ -136,7 +138,11 @@ class EventTree {
    * @return void promise about the assertion is done
    **/
   async assertEventInstanceTreeNodeVisible(event_type: string, frm: string, event_instance: string) {
-    await expect(this.page.getByTestId(`event-tree-checkbox-${this.source+">>"+event_type+">>"+frm+">>"+event_instance}`)).toBeVisible();
+    await expect(
+      this.page.getByTestId(
+        `event-tree-checkbox-${this.source + ">>" + event_type + ">>" + frm + ">>" + event_instance}`
+      )
+    ).toBeVisible();
   }
 
   /**
@@ -147,7 +153,11 @@ class EventTree {
    * @return void promise about the assertion is done
    **/
   async assertEventInstanceTreeNodeNotVisible(event_type: string, frm: string, event_instance: string) {
-    await expect(this.page.getByTestId(`event-tree-checkbox-${this.source+">>"+event_type+">>"+frm+">>"+event_instance}`)).not.toBeVisible();
+    await expect(
+      this.page.getByTestId(
+        `event-tree-checkbox-${this.source + ">>" + event_type + ">>" + frm + ">>" + event_instance}`
+      )
+    ).not.toBeVisible();
   }
 
   /**
@@ -289,7 +299,7 @@ class EventTree {
    * @return {Promise<void>} you can await this promise to wait for this function to complete
    **/
   async checkAll(): Promise<void> {
-    await this.page.getByTestId(`event-tree-checkbox-${this.source}`).click()
+    await this.page.getByTestId(`event-tree-checkbox-${this.source}`).click();
   }
 
   /**
@@ -299,17 +309,18 @@ class EventTree {
    * @return {Promise<void>} you can await this promise to wait for this function to complete
    **/
   async checkNone(): Promise<void> {
-
     const isChecked = await this.page.getByTestId(`event-tree-checkbox-${this.source}`).isChecked();
-    const isIndeterminate = await this.page.getByTestId(`event-tree-checkbox-${this.source}`).evaluate(el => el.indeterminate);
+    const isIndeterminate = await this.page
+      .getByTestId(`event-tree-checkbox-${this.source}`)
+      .evaluate((el) => el.indeterminate);
 
-    if(isIndeterminate) {
-        // if half checked , first click makes it checked, then second click makes it unchecked
-        await this.page.getByTestId(`event-tree-checkbox-${this.source}`).click();
-        await this.page.getByTestId(`event-tree-checkbox-${this.source}`).click();
-    } else if(isChecked) {
-        // if checked , first click makes it unchecked
-        await this.page.getByTestId(`event-tree-checkbox-${this.source}`).click();
+    if (isIndeterminate) {
+      // if half checked , first click makes it checked, then second click makes it unchecked
+      await this.page.getByTestId(`event-tree-checkbox-${this.source}`).click();
+      await this.page.getByTestId(`event-tree-checkbox-${this.source}`).click();
+    } else if (isChecked) {
+      // if checked , first click makes it unchecked
+      await this.page.getByTestId(`event-tree-checkbox-${this.source}`).click();
     }
   }
 
@@ -319,7 +330,7 @@ class EventTree {
    * @return {Promise<void>} A promise for you to wait for assertion to complete.
    */
   async assertEventTypeNodeChecked(event_type: string): Promise<void> {
-    await expect(this.page.getByTestId(`event-tree-checkbox-${this.source+">>"+event_type}`)).toBeChecked()
+    await expect(this.page.getByTestId(`event-tree-checkbox-${this.source + ">>" + event_type}`)).toBeChecked();
   }
 
   /**
@@ -329,7 +340,9 @@ class EventTree {
    * @return {Promise<void>} A promise for you to wait for assertion to complete.
    */
   async assertFrmNodeChecked(event_type: string, frm: string): Promise<void> {
-    await expect(this.page.getByTestId(`event-tree-checkbox-${this.source+">>"+event_type+">>"+frm}`)).toBeChecked()
+    await expect(
+      this.page.getByTestId(`event-tree-checkbox-${this.source + ">>" + event_type + ">>" + frm}`)
+    ).toBeChecked();
   }
 
   /**
@@ -340,7 +353,11 @@ class EventTree {
    * @return {Promise<void>} A promise for you to wait for assertion to complete.
    */
   async assertEventInstanceNodeChecked(event_type: string, frm: string, event_instance: string): Promise<void> {
-    await expect(this.page.getByTestId(`event-tree-checkbox-${this.source+">>"+event_type+">>"+frm+">>"+event_instance}`)).toBeChecked()
+    await expect(
+      this.page.getByTestId(
+        `event-tree-checkbox-${this.source + ">>" + event_type + ">>" + frm + ">>" + event_instance}`
+      )
+    ).toBeChecked();
   }
 
   /**
@@ -349,7 +366,7 @@ class EventTree {
    * @return {Promise<void>} A promise for you to wait for assertion to complete.
    */
   async assertEventTypeNodeUnchecked(event_type: string): Promise<void> {
-    await expect(this.page.getByTestId(`event-tree-checkbox-${this.source+">>"+event_type}`)).not.toBeChecked()
+    await expect(this.page.getByTestId(`event-tree-checkbox-${this.source + ">>" + event_type}`)).not.toBeChecked();
   }
 
   /**
@@ -358,7 +375,10 @@ class EventTree {
    * @return {Promise<void>} A promise for you to wait for assertion to complete.
    */
   async assertEventTypeNodeHalfChecked(event_type: string): Promise<void> {
-    await expect(this.page.getByTestId(`event-tree-checkbox-${this.source+">>"+event_type}`)).toHaveJSProperty('indeterminate', true);
+    await expect(this.page.getByTestId(`event-tree-checkbox-${this.source + ">>" + event_type}`)).toHaveJSProperty(
+      "indeterminate",
+      true
+    );
   }
 
   /**
@@ -368,7 +388,9 @@ class EventTree {
    * @return {Promise<void>} A promise for you to wait for assertion to complete.
    */
   async assertFrmNodeUnchecked(event_type: string, frm: string): Promise<void> {
-    await expect(this.page.getByTestId(`event-tree-checkbox-${this.source+">>"+event_type+">>"+frm}`)).not.toBeChecked()
+    await expect(
+      this.page.getByTestId(`event-tree-checkbox-${this.source + ">>" + event_type + ">>" + frm}`)
+    ).not.toBeChecked();
   }
 
   /**
@@ -394,7 +416,11 @@ class EventTree {
    * @return {Promise<void>} A promise for you to wait for assertion to complete.
    */
   async assertEventInstanceNodeUnchecked(event_type: string, frm: string, event_instance: string): Promise<void> {
-    await expect(this.page.getByTestId(`event-tree-checkbox-${this.source+">>"+event_type+">>"+frm+">>"+event_instance}`)).not.toBeChecked()
+    await expect(
+      this.page.getByTestId(
+        `event-tree-checkbox-${this.source + ">>" + event_type + ">>" + frm + ">>" + event_instance}`
+      )
+    ).not.toBeChecked();
   }
 
   /**
