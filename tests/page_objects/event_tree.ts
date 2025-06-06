@@ -23,7 +23,9 @@ class EventTree {
    * @return A promise that resolves to a boolean value indicating whether the event type exists in the event tree (true) or not (false).
    */
   async hasEventType(event_type: string): Promise<boolean> {
-    const eventTypeCount = await this.page.getByTestId(`event-tree-checkbox-${this.source + ">>" + event_type}`).count();
+    const eventTypeCount = await this.page
+      .getByTestId(`event-tree-checkbox-${this.source + ">>" + event_type}`)
+      .count();
     return eventTypeCount == 1;
   }
 
@@ -34,7 +36,9 @@ class EventTree {
    * @return promise to resolve true or false
    **/
   async hasFRM(event_type: string, frm: string): Promise<boolean> {
-    const eventFRMNodeCount = await this.page.getByTestId(`event-tree-checkbox-${this.source + ">>" + event_type + ">>" + frm}`).count();
+    const eventFRMNodeCount = await this.page
+      .getByTestId(`event-tree-checkbox-${this.source + ">>" + event_type + ">>" + frm}`)
+      .count();
     return eventFRMNodeCount == 1;
   }
 
@@ -46,7 +50,9 @@ class EventTree {
    * @return promise to resolve the number of event instances under frm
    **/
   async frmEventCount(event_type: string, frm: string): Promise<number> {
-    return await this.page.locator(`[data-testid^="event-tree-checkbox-${this.source}>>${event_type}>>${frm}>>"]`).count();
+    return await this.page
+      .locator(`[data-testid^="event-tree-checkbox-${this.source}>>${event_type}>>${frm}>>"]`)
+      .count();
   }
 
   /**
@@ -57,7 +63,9 @@ class EventTree {
    * @return promise to resolve true or false
    **/
   async frmHasEventInstance(event_type: string, frm: string, event_instance: string): Promise<boolean> {
-    const eventInstanceCount = await this.page.getByTestId(`event-tree-checkbox-${this.source + ">>" + event_type + ">>" + frm + ">>" + event_instance}`).count();
+    const eventInstanceCount = await this.page
+      .getByTestId(`event-tree-checkbox-${this.source + ">>" + event_type + ">>" + frm + ">>" + event_instance}`)
+      .count();
     return eventInstanceCount == 1;
   }
 
