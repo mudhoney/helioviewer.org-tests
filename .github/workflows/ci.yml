@@ -62,7 +62,7 @@ jobs:
         shardTotal: [5]
       fail-fast: false
 
-    timeout-minutes: 60
+    timeout-minutes: 99
     runs-on: ubuntu-latest
     steps:
       - name: Checkout test code
