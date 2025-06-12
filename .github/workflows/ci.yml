@@ -60,7 +60,7 @@ jobs:
       matrix:
         shardIndex: [1, 2, 3, 4, 5]
         shardTotal: [5]
-      fail-fast: false
+      fail-fast: true
 
     timeout-minutes: 99
     runs-on: ubuntu-latest
