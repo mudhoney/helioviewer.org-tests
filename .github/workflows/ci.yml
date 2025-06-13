@@ -58,8 +58,8 @@ jobs:
   playwright-e2e-tests:
     strategy:
       matrix:
-        shardIndex: [1]
-        shardTotal: [1]
+        shardIndex: [1,2,3,4,5]
+        shardTotal: [5]
       fail-fast: false
 
     timeout-minutes: 99
