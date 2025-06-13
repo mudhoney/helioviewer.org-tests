@@ -136,7 +136,7 @@ jobs:
           npx playwright install --with-deps
       - name: Run Playwright tests
         run: |
-          npx playwright test --shard=${{matrix.shardIndex}}/${{matrix.shardTotal}} desktop/normal/observation_date/
+          npx playwright test --project="chromium" --shard=${{matrix.shardIndex}}/${{matrix.shardTotal}}
       - name: Upload blob report to GitHub Actions Artifacts
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
