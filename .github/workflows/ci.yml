@@ -68,7 +68,7 @@ jobs:
       - name: Checkout test code
         uses: actions/checkout@v4
         with:
-          repository: helioviewer-project/helioviewer.org-tests
+          repository: mudhoney/helioviewer.org-tests
           ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.test_pr != '' && format('refs/pull/{0}/head', github.event.inputs.test_pr) || format('refs/pull/{0}/head', '1')}}
 
       - name: Checkout Helioviewer.org code being tested
