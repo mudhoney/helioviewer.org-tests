@@ -318,8 +318,10 @@ class Helioviewer implements DesktopInterface {
 
     await this.WaitForImageLoad();
 
-    if (await this.page.isVisible('#EventLayerAccordion-Container')) {
-        await this.page.waitForFunction(() => !document.querySelector(".event-tree-container-loader"), null , { timeout: 50000});
+    if (await this.page.isVisible("#EventLayerAccordion-Container")) {
+      await this.page.waitForFunction(() => !document.querySelector(".event-tree-container-loader"), null, {
+        timeout: 50000
+      });
     }
   }
 
