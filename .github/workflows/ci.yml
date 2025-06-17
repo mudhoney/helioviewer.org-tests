@@ -68,13 +68,13 @@ jobs:
       - name: Checkout test code
         uses: actions/checkout@v4
         with:
-          repository: mudhoney/helioviewer.org-tests
-          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.test_pr != '' && format('refs/pull/{0}/head', github.event.inputs.test_pr) || format('refs/pull/{0}/head', '1')}}
+          repository: helioviewer-project/helioviewer.org-tests
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.test_pr != '' && format('refs/pull/{0}/head', github.event.inputs.test_pr) || github.ref}}
 
       - name: Checkout Helioviewer.org code being tested
         uses: actions/checkout@v4
         with:
-          repository: mudhoney/helioviewer.org
+          repository: helioviewer-project/helioviewer.org
           submodules: true
           path: "helioviewer.org"
           ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.helioviewer_pr != '' && format('refs/pull/{0}/head', github.event.inputs.helioviewer_pr) || format('refs/pull/{0}/head', '6')  || 'main' }}
