@@ -50,6 +50,6 @@ test("Displays initial AIA 304 Image", { tag: "@flaky" }, async ({ page }, info)
   await expect(page.locator("#TileLayerAccordion-Container").getByText("2021/06/01 00:01:29 UTC")).toBeVisible();
 
   await hv.CloseSidebar();
- 
+
   await expect(page).toHaveScreenshot();
 });
