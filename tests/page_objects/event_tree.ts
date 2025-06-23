@@ -116,6 +116,15 @@ class EventTree {
   }
 
   /**
+   * This function toggles ( opens if closed or closes if opened ) the given event_tree
+   * This operation presses the little caret near the source label (HEK, CCMC, RHESSI) in  event tree, and make all event_tree branches visible/invisible
+   * @return void promise about the task is done
+   **/
+  async toggleAllEventTree() {
+    await this.page.getByTestId(`event-tree-expand-triangle-${this.source}`).click();
+  }
+
+  /**
    * This function asserts if the given event_instance node is visible under the frm in given event_tree
    * @param event_type parameter specifies the type of event (ex: Active Region, Corona Hole)
    * @param frm parameter specifies the name of the frm (ex: "NOAA SWPC Observer").
