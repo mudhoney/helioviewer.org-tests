@@ -60,7 +60,8 @@ export default defineConfig({
     baseURL: "http://localhost:8080",
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: "retain-on-failure"
+    // trace: "retain-on-failure"
+    trace: "on"
   },
   expect: {
     toHaveScreenshot: {
