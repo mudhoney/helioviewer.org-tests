@@ -13,7 +13,7 @@ test("Going back to layer's last available image should disable previous image b
 }, info) => {
   let hv = new Helioviewer(page, info);
 
-  const firstBeforeLastImage = new Date("2024/12/30 20:00:05Z");
+  const firstBeforeLastImage = new Date("2024/12/31 00:00:05Z");
   const lastImage = new Date("2021/06/01 00:01:29Z");
 
   // 1. LOAD HV
