@@ -8,12 +8,14 @@ class EventTree {
   page: Page;
   root: Locator;
   markersRoot: Locator;
+  eventLayerRoot: Locator;
   source: string;
 
   constructor(source, page) {
     this.page = page;
-    this.root = page.locator("#event-tree-container-" + source);
+    this.root = page.locator("#tree_" + source);
     this.markersRoot = page.locator("#tree_" + source + "-event-container");
+    this.eventLayerRoot = page.locator("#event-layer-" + source);
     this.source = source;
   }
 
@@ -23,9 +25,8 @@ class EventTree {
    * @return A promise that resolves to a boolean value indicating whether the event type exists in the event tree (true) or not (false).
    */
   async hasEventType(event_type: string): Promise<boolean> {
-    const eventTypeCount = await this.page
-      .getByTestId(`event-tree-checkbox-${this.source + ">>" + event_type}`)
-      .count();
+    const eventTypeLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(event_type) });
+    const eventTypeCount = await this.root.getByRole("listitem").filter({ has: eventTypeLink }).count();
     return eventTypeCount == 1;
   }
 
@@ -36,9 +37,12 @@ class EventTree {
    * @return promise to resolve true or false
    **/
   async hasFRM(event_type: string, frm: string): Promise<boolean> {
-    const eventFRMNodeCount = await this.page
-      .getByTestId(`event-tree-checkbox-${this.source + ">>" + event_type + ">>" + frm}`)
-      .count();
+    const eventTypeLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(event_type) });
+    const eventTypeNode = await this.root.getByRole("listitem").filter({ has: eventTypeLink });
+
+    const eventFRMLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(frm) });
+    const eventFRMNodeCount = await eventTypeNode.getByRole("listitem").filter({ has: eventFRMLink }).count();
+
     return eventFRMNodeCount == 1;
   }
 
@@ -50,9 +54,13 @@ class EventTree {
    * @return promise to resolve the number of event instances under frm
    **/
   async frmEventCount(event_type: string, frm: string): Promise<number> {
-    return await this.page
-      .locator(`[data-testid^="event-tree-checkbox-${this.source}>>${event_type}>>${frm}>>"]`)
-      .count();
+    const eventTypeLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(event_type) });
+    const eventTypeNode = await this.root.getByRole("listitem").filter({ has: eventTypeLink });
+
+    const eventFRMLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(frm) });
+    const eventFRMNode = await eventTypeNode.getByRole("listitem").filter({ has: eventFRMLink });
+
+    return await eventFRMNode.getByRole("listitem", { includeHidden: true }).count();
   }
 
   /**
@@ -63,9 +71,18 @@ class EventTree {
    * @return promise to resolve true or false
    **/
   async frmHasEventInstance(event_type: string, frm: string, event_instance: string): Promise<boolean> {
-    const eventInstanceCount = await this.page
-      .getByTestId(`event-tree-checkbox-${this.source + ">>" + event_type + ">>" + frm + ">>" + event_instance}`)
+    const eventTypeLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(event_type) });
+    const eventTypeNode = await this.root.getByRole("listitem").filter({ has: eventTypeLink });
+
+    const eventFRMLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(frm) });
+    const eventFRMNode = await eventTypeNode.getByRole("listitem").filter({ has: eventFRMLink });
+
+    const eventInstanceLink = this.page.getByRole("link", { name: event_instance, includeHidden: true });
+    const eventInstanceCount = await eventFRMNode
+      .getByRole("listitem", { includeHidden: true })
+      .filter({ has: eventInstanceLink })
       .count();
+
     return eventInstanceCount == 1;
   }
 
@@ -76,7 +93,11 @@ class EventTree {
    * @return void promise about the task is done
    **/
   async toggleCheckEventType(event_type: string) {
-    await this.page.getByTestId(`event-tree-checkbox-${this.source + ">>" + event_type}`).click();
+    await this.root
+      .getByRole("link", { name: EventTree.makeNumericRegex(event_type) })
+      .getByRole("insertion")
+      .first()
+      .click();
   }
 
   /**
@@ -87,7 +108,14 @@ class EventTree {
    * @return void promise about the task is done
    **/
   async toggleCheckFRM(event_type: string, frm: string) {
-    await this.page.getByTestId(`event-tree-checkbox-${this.source + ">>" + event_type + ">>" + frm}`).click();
+    const eventTypeLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(event_type) });
+    const eventTypeNode = await this.root.getByRole("listitem").filter({ has: eventTypeLink });
+
+    await eventTypeNode
+      .getByRole("link", { name: EventTree.makeNumericRegex(frm) })
+      .getByRole("insertion")
+      .first()
+      .click();
   }
 
   /**
@@ -99,9 +127,13 @@ class EventTree {
    * @return void promise about the task is done
    **/
   async toggleCheckEventInstance(event_type: string, frm: string, event_instance: string) {
-    await this.page
-      .getByTestId(`event-tree-checkbox-${this.source + ">>" + event_type + ">>" + frm + ">>" + event_instance}`)
-      .click();
+    const eventTypeLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(event_type) });
+    const eventTypeNode = await this.root.getByRole("listitem").filter({ has: eventTypeLink });
+
+    const eventFRMLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(frm) });
+    const eventFRMNode = await eventTypeNode.getByRole("listitem").filter({ has: eventFRMLink });
+
+    await eventFRMNode.getByRole("link", { name: event_instance }).getByRole("insertion").first().click();
   }
 
   /**
@@ -112,16 +144,13 @@ class EventTree {
    * @return void promise about the task is done
    **/
   async toggleBranchFRM(event_type: string, frm: string) {
-    await this.page.getByTestId(`event-tree-expand-triangle-${this.source + ">>" + event_type + ">>" + frm}`).click();
-  }
+    const eventTypeLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(event_type) });
+    const eventTypeNode = await this.root.getByRole("listitem").filter({ has: eventTypeLink });
 
-  /**
-   * This function toggles ( opens if closed or closes if opened ) the given event_tree
-   * This operation presses the little caret near the source label (HEK, CCMC, RHESSI) in  event tree, and make all event_tree branches visible/invisible
-   * @return void promise about the task is done
-   **/
-  async toggleAllEventTree() {
-    await this.page.getByTestId(`event-tree-expand-triangle-${this.source}`).click();
+    const eventFRMLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(frm) });
+    const eventFRMNode = await eventTypeNode.getByRole("listitem").filter({ has: eventFRMLink });
+
+    await eventFRMNode.getByRole("insertion").first().click();
   }
 
   /**
@@ -132,11 +161,13 @@ class EventTree {
    * @return void promise about the assertion is done
    **/
   async assertEventInstanceTreeNodeVisible(event_type: string, frm: string, event_instance: string) {
-    await expect(
-      this.page.getByTestId(
-        `event-tree-checkbox-${this.source + ">>" + event_type + ">>" + frm + ">>" + event_instance}`
-      )
-    ).toBeVisible();
+    const eventTypeLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(event_type) });
+    const eventTypeNode = await this.root.getByRole("listitem").filter({ has: eventTypeLink });
+
+    const eventFRMLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(frm) });
+    const eventFRMNode = await eventTypeNode.getByRole("listitem").filter({ has: eventFRMLink });
+
+    await expect(eventFRMNode.getByRole("link", { name: event_instance })).toBeVisible();
   }
 
   /**
@@ -147,11 +178,13 @@ class EventTree {
    * @return void promise about the assertion is done
    **/
   async assertEventInstanceTreeNodeNotVisible(event_type: string, frm: string, event_instance: string) {
-    await expect(
-      this.page.getByTestId(
-        `event-tree-checkbox-${this.source + ">>" + event_type + ">>" + frm + ">>" + event_instance}`
-      )
-    ).not.toBeVisible();
+    const eventTypeLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(event_type) });
+    const eventTypeNode = await this.root.getByRole("listitem").filter({ has: eventTypeLink });
+
+    const eventFRMLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(frm) });
+    const eventFRMNode = await eventTypeNode.getByRole("listitem").filter({ has: eventFRMLink });
+
+    await expect(eventFRMNode.getByRole("link", { name: event_instance })).not.toBeVisible();
   }
 
   /**
@@ -161,7 +194,12 @@ class EventTree {
    * @return void promise about the task is done
    **/
   async hoverOnEventType(event_type: string) {
-    await this.page.getByTestId(`event-tree-label-${this.source}>>${event_type}`).hover();
+    const eventTypeLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(event_type) });
+    const eventTypeNode = await this.root.getByRole("listitem").filter({ has: eventTypeLink });
+    await eventTypeNode
+      .getByRole("link", { name: EventTree.makeNumericRegex(event_type) })
+      .locator("nth=0")
+      .hover();
   }
 
   /**
@@ -172,7 +210,13 @@ class EventTree {
    * @return void promise about the task is done
    **/
   async hoverOnFRM(event_type: string, frm: string) {
-    await this.page.getByTestId(`event-tree-label-${this.source}>>${event_type}>>${frm}`).hover();
+    const eventTypeLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(event_type) });
+    const eventTypeNode = await this.root.getByRole("listitem").filter({ has: eventTypeLink });
+
+    const eventFRMLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(frm) });
+    const eventFRMNode = await eventTypeNode.getByRole("listitem").filter({ has: eventFRMLink });
+
+    await eventFRMNode.getByRole("link", { name: frm }).locator("nth=0").hover();
   }
 
   /**
@@ -184,7 +228,13 @@ class EventTree {
    * @return void promise about the assertion is done
    **/
   async hoverOnEventInstance(event_type: string, frm: string, event_instance: string) {
-    await this.page.getByTestId(`event-tree-label-${this.source}>>${event_type}>>${frm}>>${event_instance}`).hover();
+    const eventTypeLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(event_type) });
+    const eventTypeNode = await this.root.getByRole("listitem").filter({ has: eventTypeLink });
+
+    const eventFRMLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(frm) });
+    const eventFRMNode = await eventTypeNode.getByRole("listitem").filter({ has: eventFRMLink });
+
+    await eventFRMNode.getByRole("link", { name: event_instance }).hover();
   }
 
   /**
@@ -250,7 +300,7 @@ class EventTree {
    * @return {Promise<void>} you can await this promise to wait for toggling to complete
    **/
   async toggleVisibilityEmptyEventSources(): Promise<void> {
-    await this.page.getByTestId(`event-tree-empty-resource-visibility-button-${this.source}`).click();
+    return this.eventLayerRoot.locator("#visibilityAvailableBtn-event-layer-" + this.source).click();
   }
 
   /**
@@ -258,7 +308,7 @@ class EventTree {
    * @return {Promise<void>} you can await this promise to wait for toggling to complete
    **/
   async toggleVisibilityEvents(): Promise<void> {
-    await this.page.getByTestId(`event-tree-event-visibility-button-${this.source}`).click();
+    return this.eventLayerRoot.locator("#visibilityBtn-event-layer-" + this.source).click();
   }
 
   /**
@@ -266,7 +316,7 @@ class EventTree {
    * @return {Promise<void>} you can await this promise to wait for toggling to complete
    **/
   async toggleVisibilityEventLabels(): Promise<void> {
-    await this.page.getByTestId(`event-tree-event-label-visibility-button-${this.source}`).click();
+    return this.eventLayerRoot.locator("#labelsBtn-event-layer-" + this.source).click();
   }
 
   /**
@@ -276,7 +326,7 @@ class EventTree {
    * @return {Promise<void>} you can await this promise to wait for this function to complete
    **/
   async checkAll(): Promise<void> {
-    await this.page.getByTestId(`event-tree-checkbox-${this.source}`).click();
+    await this.eventLayerRoot.getByTitle("Toggle All Event Checkboxes On").click();
   }
 
   /**
@@ -286,19 +336,7 @@ class EventTree {
    * @return {Promise<void>} you can await this promise to wait for this function to complete
    **/
   async checkNone(): Promise<void> {
-    const isChecked = await this.page.getByTestId(`event-tree-checkbox-${this.source}`).isChecked();
-    const isIndeterminate = await this.page
-      .getByTestId(`event-tree-checkbox-${this.source}`)
-      .evaluate((el: HTMLInputElement) => el.indeterminate);
-
-    if (isIndeterminate) {
-      // if half checked , first click makes it checked, then second click makes it unchecked
-      await this.page.getByTestId(`event-tree-checkbox-${this.source}`).click();
-      await this.page.getByTestId(`event-tree-checkbox-${this.source}`).click();
-    } else if (isChecked) {
-      // if checked , first click makes it unchecked
-      await this.page.getByTestId(`event-tree-checkbox-${this.source}`).click();
-    }
+    await this.eventLayerRoot.getByTitle("Toggle All Event Checkboxes Off").click();
   }
 
   /**
@@ -307,7 +345,9 @@ class EventTree {
    * @return {Promise<void>} A promise for you to wait for assertion to complete.
    */
   async assertEventTypeNodeChecked(event_type: string): Promise<void> {
-    await expect(this.page.getByTestId(`event-tree-checkbox-${this.source + ">>" + event_type}`)).toBeChecked();
+    const eventTypeLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(event_type) });
+    const eventTypeNode = await this.root.getByRole("listitem").filter({ has: eventTypeLink });
+    await expect(eventTypeNode).toHaveClass(/jstree-checked/);
   }
 
   /**
@@ -317,9 +357,13 @@ class EventTree {
    * @return {Promise<void>} A promise for you to wait for assertion to complete.
    */
   async assertFrmNodeChecked(event_type: string, frm: string): Promise<void> {
-    await expect(
-      this.page.getByTestId(`event-tree-checkbox-${this.source + ">>" + event_type + ">>" + frm}`)
-    ).toBeChecked();
+    const eventTypeLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(event_type) });
+    const eventTypeNode = await this.root.getByRole("listitem").filter({ has: eventTypeLink });
+
+    const eventFRMLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(frm) });
+    const eventFRMNode = await eventTypeNode.getByRole("listitem").filter({ has: eventFRMLink });
+
+    await expect(eventFRMNode).toHaveClass(/jstree-checked/);
   }
 
   /**
@@ -330,11 +374,18 @@ class EventTree {
    * @return {Promise<void>} A promise for you to wait for assertion to complete.
    */
   async assertEventInstanceNodeChecked(event_type: string, frm: string, event_instance: string): Promise<void> {
-    await expect(
-      this.page.getByTestId(
-        `event-tree-checkbox-${this.source + ">>" + event_type + ">>" + frm + ">>" + event_instance}`
-      )
-    ).toBeChecked();
+    const eventTypeLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(event_type) });
+    const eventTypeNode = await this.root.getByRole("listitem").filter({ has: eventTypeLink });
+
+    const eventFRMLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(frm) });
+    const eventFRMNode = await eventTypeNode.getByRole("listitem").filter({ has: eventFRMLink });
+
+    const eventInstanceLink = this.page.getByRole("link", { name: event_instance, includeHidden: true, exact: true });
+    const eventInstanceNode = await eventFRMNode
+      .getByRole("listitem", { includeHidden: true })
+      .filter({ has: eventInstanceLink });
+
+    await expect(eventInstanceNode).toHaveClass(/jstree-checked/);
   }
 
   /**
@@ -343,7 +394,9 @@ class EventTree {
    * @return {Promise<void>} A promise for you to wait for assertion to complete.
    */
   async assertEventTypeNodeUnchecked(event_type: string): Promise<void> {
-    await expect(this.page.getByTestId(`event-tree-checkbox-${this.source + ">>" + event_type}`)).not.toBeChecked();
+    const eventTypeLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(event_type) });
+    const eventTypeNode = await this.root.getByRole("listitem").filter({ has: eventTypeLink });
+    await expect(eventTypeNode).toHaveClass(/jstree-unchecked/);
   }
 
   /**
@@ -352,10 +405,9 @@ class EventTree {
    * @return {Promise<void>} A promise for you to wait for assertion to complete.
    */
   async assertEventTypeNodeHalfChecked(event_type: string): Promise<void> {
-    await expect(this.page.getByTestId(`event-tree-checkbox-${this.source + ">>" + event_type}`)).toHaveJSProperty(
-      "indeterminate",
-      true
-    );
+    const eventTypeLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(event_type) });
+    const eventTypeNode = await this.root.getByRole("listitem").filter({ has: eventTypeLink });
+    await expect(eventTypeNode).toHaveClass(/jstree-undetermined/);
   }
 
   /**
@@ -365,9 +417,13 @@ class EventTree {
    * @return {Promise<void>} A promise for you to wait for assertion to complete.
    */
   async assertFrmNodeUnchecked(event_type: string, frm: string): Promise<void> {
-    await expect(
-      this.page.getByTestId(`event-tree-checkbox-${this.source + ">>" + event_type + ">>" + frm}`)
-    ).not.toBeChecked();
+    const eventTypeLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(event_type) });
+    const eventTypeNode = await this.root.getByRole("listitem").filter({ has: eventTypeLink });
+
+    const eventFRMLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(frm) });
+    const eventFRMNode = await eventTypeNode.getByRole("listitem").filter({ has: eventFRMLink });
+
+    await expect(eventFRMNode).toHaveClass(/jstree-unchecked/);
   }
 
   /**
@@ -393,11 +449,17 @@ class EventTree {
    * @return {Promise<void>} A promise for you to wait for assertion to complete.
    */
   async assertEventInstanceNodeUnchecked(event_type: string, frm: string, event_instance: string): Promise<void> {
-    await expect(
-      this.page.getByTestId(
-        `event-tree-checkbox-${this.source + ">>" + event_type + ">>" + frm + ">>" + event_instance}`
-      )
-    ).not.toBeChecked();
+    const eventTypeLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(event_type) });
+    const eventTypeNode = await this.root.getByRole("listitem").filter({ has: eventTypeLink });
+
+    const eventFRMLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(frm) });
+    const eventFRMNode = await eventTypeNode.getByRole("listitem").filter({ has: eventFRMLink });
+
+    const eventInstanceLink = this.page.getByRole("link", { name: event_instance, includeHidden: true, exact: true });
+    const eventInstanceNode = await eventFRMNode
+      .getByRole("listitem", { includeHidden: true })
+      .filter({ has: eventInstanceLink });
+    await expect(eventInstanceNode).toHaveClass(/jstree-unchecked/);
   }
 
   /**
@@ -406,7 +468,9 @@ class EventTree {
    * @return {Promise<void>} A promise for you to wait for assertion to complete.
    */
   async assertEventTypeNodeVisible(event_type: string): Promise<void> {
-    await expect(this.page.getByTestId(`event-tree-checkbox-${this.source}>>${event_type}`)).toBeVisible();
+    const eventTypeLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(event_type) });
+    const eventTypeNode = await this.root.getByRole("listitem").filter({ has: eventTypeLink });
+    return expect(eventTypeNode).toBeVisible();
   }
 
   /**
@@ -415,7 +479,9 @@ class EventTree {
    * @return {Promise<void>} A promise for you to wait for assertion to complete.
    */
   async assertEventTypeNodeNotVisible(event_type: string): Promise<void> {
-    await expect(this.page.getByTestId(`event-tree-checkbox-${this.source}>>${event_type}`)).not.toBeVisible();
+    const eventTypeLink = this.page.getByRole("link", { name: EventTree.makeNumericRegex(event_type) });
+    const eventTypeNode = await this.root.getByRole("listitem").filter({ has: eventTypeLink });
+    return expect(eventTypeNode).not.toBeVisible();
   }
 
   /**
