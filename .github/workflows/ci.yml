@@ -77,14 +77,14 @@ jobs:
           repository: 'Helioviewer-Project/helioviewer.org'
           submodules: true
           path: "helioviewer.org"
-          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.helioviewer_pr != '' && format('refs/pull/{0}/head', github.event.inputs.helioviewer_pr) || format('refs/pull/{0}/head', '673')  || 'main' }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.helioviewer_pr != '' && format('refs/pull/{0}/head', github.event.inputs.helioviewer_pr) || 'main' }}
 
       - name: Checkout the Helioviewer API code being tested
         uses: actions/checkout@v4
         with:
           repository: 'Helioviewer-Project/api'
           path: 'api'
-          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.api_pr != '' && format('refs/pull/{0}/head', github.event.inputs.api_pr) || format('refs/pull/{0}/head', '436') || 'main' }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.api_pr != '' && format('refs/pull/{0}/head', github.event.inputs.api_pr) || 'main' }}
       - name: Print current directory
         run: |
           echo $(pwd)
@@ -136,7 +136,7 @@ jobs:
           npx playwright install --with-deps
       - name: Run Playwright tests
         run: |
-          npx playwright test --shard=${{matrix.shardIndex}}/${{matrix.shardTotal}} --max-failures=5
+          npx playwright test --shard=${{matrix.shardIndex}}/${{matrix.shardTotal}}
       - name: Upload blob report to GitHub Actions Artifacts
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4

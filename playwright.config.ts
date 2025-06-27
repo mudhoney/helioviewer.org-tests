@@ -46,12 +46,7 @@ export default defineConfig({
         },
     ],
     [
-        'html',
-        {
-            // attachmentsBaseURL: 'http://ec2-44-219-199-246.compute-1.amazonaws.com:8082' 
-            host: 'ec2-44-219-199-246.compute-1.amazonaws.com',
-            port: 8082,
-        },
+        'html'
     ]
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
