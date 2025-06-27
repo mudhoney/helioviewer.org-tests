@@ -16,8 +16,8 @@ import { Helioviewer } from "../../page_objects/helioviewer";
  *            There's not a simple solution to this, but consider this if you
  *            see this test being flaky.
  */
-test("Displays initial AIA 304 Image", { tag: "@flaky" }, async ({ page }) => {
-  let hv = new Helioviewer(page);
+test("Displays initial AIA 304 Image", { tag: "@flaky" }, async ({ page }, info) => {
+  let hv = new Helioviewer(page, info);
   await page.goto("/");
   // Open the Helioviewer Sidebar
   // Wait for the UI to finish loading before proceeding
@@ -48,5 +48,8 @@ test("Displays initial AIA 304 Image", { tag: "@flaky" }, async ({ page }) => {
   });
   // Expect the AIA 304 layer to display the time we selected
   await expect(page.locator("#TileLayerAccordion-Container").getByText("2021/06/01 00:01:29 UTC")).toBeVisible();
+
+  await hv.CloseSidebar();
+
   await expect(page).toHaveScreenshot();
 });
