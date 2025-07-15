@@ -155,6 +155,22 @@ class EventTree {
   }
 
   /**
+   * This function asserts if the given event_instance node label text matches the expected label
+   * @param event_type parameter specifies the type of event (ex: Active Region, Corona Hole)
+   * @param frm parameter specifies the name of the frm (ex: "NOAA SWPC Observer").
+   * @param event_instance parameter specifies the name of the event instance (ex: "NOAA 12674 β").
+   * @param expected_label parameter specifies the expected label text that should be displayed
+   * @return void promise about the assertion is done
+   **/
+  async assertEventInstanceTreeNodeLabel(event_type: string, frm: string, event_instance: string, expected_label: string) {
+    const spanElement = this.page.getByTestId(
+      `event-tree-label-${this.source + ">>" + event_type + ">>" + frm + ">>" + event_instance}`
+    );
+    await expect(spanElement).toBeVisible();
+    await expect(spanElement).toHaveText(expected_label);
+  }
+
+  /**
    * This function hovers the mouse to the given event_type node in event_tree
    * All the event markers under this event type should be highlighted after this operation
    * @param event_type parameter specifies the type of event (ex: Active Region, Corona Hole)
