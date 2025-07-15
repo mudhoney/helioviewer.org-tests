@@ -162,7 +162,12 @@ class EventTree {
    * @param expected_label parameter specifies the expected label text that should be displayed
    * @return void promise about the assertion is done
    **/
-  async assertEventInstanceTreeNodeLabel(event_type: string, frm: string, event_instance: string, expected_label: string) {
+  async assertEventInstanceTreeNodeLabel(
+    event_type: string,
+    frm: string,
+    event_instance: string,
+    expected_label: string
+  ) {
     const spanElement = this.page.getByTestId(
       `event-tree-label-${this.source + ">>" + event_type + ">>" + frm + ">>" + event_instance}`
     );
