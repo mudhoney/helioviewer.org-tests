@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 
 if [ $# -ne 1 ]; then
     echo "Usage: $0 <playwright_report_zip_file>"
@@ -15,13 +16,12 @@ cd $temp_dir
 cp -r data "$wd"
 
 # Extract base64 string from index.html
-base64_string=$(grep -oP 'window\.playwrightReportBase64 = "data:application/zip;base64,\K[^"]*' "$temp_dir/index.html")
-
 # Save the base64 string to a file
-echo "$base64_string" > playwright_report_base64
+grep -oE 'window\.playwrightReportBase64 = "data:application/zip;base64,[^"]*' "$temp_dir/index.html" | awk -F'base64,' '{print $2}' > playwright_report_base64
+cat playwright_report_base64
 
 # Decode the base64 string into a zip file
-base64 -d playwright_report_base64 > decoded_playwright_report.zip
+base64 -d -i playwright_report_base64 > decoded_playwright_report.zip
 
 # Unzip the decoded zip file
 unzip decoded_playwright_report.zip -d unzipped_report
