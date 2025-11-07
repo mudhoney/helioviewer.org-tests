@@ -21,6 +21,7 @@ const Platforms = {
  */
 export default defineConfig({
   timeout: 300000,
+  maxFailures: 1,
   testDir: "./tests",
   /* Run tests in files in parallel */
   fullyParallel: true,
