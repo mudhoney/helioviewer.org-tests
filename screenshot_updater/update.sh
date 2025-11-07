@@ -1,7 +1,25 @@
 #!/bin/bash
 
+# Default values
+HOST="127.0.0.1"
+PORT="9876"
+
+# Parse command line arguments
+while getopts "h:p:" opt; do
+    case $opt in
+        h) HOST="$OPTARG";;
+        p) PORT="$OPTARG";;
+        \?) echo "Invalid option -$OPTARG" >&2; exit 1;;
+    esac
+done
+
+# Shift past the options to get the positional argument
+shift $((OPTIND-1))
+
 if [ $# -ne 1 ]; then
-    echo "Usage: $0 <playwright_report_zip_file>"
+    echo "Usage: $0 [-h host] [-p port] <playwright_report_zip_file>"
+    echo "  -h host    Host to bind the HTTP server (default: 127.0.0.1)"
+    echo "  -p port    Port to bind the HTTP server (default: 9876)"
     exit 1
 fi
 
@@ -32,7 +50,7 @@ unexpected_tests=$(jq -c '[.files[].tests[] | select(.outcome == "unexpected")]'
 echo $unexpected_tests > "$wd/failed_tests.json"
 
 cd "$wd"
-python -m http.server --cgi -b 127.0.0.1 9876
+python3 -m http.server --cgi -b "$HOST" "$PORT"
 
 # Clean up
 # rm -rf "$temp_dir"
