@@ -135,7 +135,7 @@ test("[Mobile] Test Help Links", async ({ page, context }) => {
 
   // Link 2: Visual Glossary
   // Waiting for this thumbnail is important for the snapshot
-  let youtubePreviewPromise = page.waitForResponse("https://i.ytimg.com/vi/TWySQHjIRSg/maxresdefault.jpg");
+  let youtubePreviewPromise = page.waitForResponse("https://i.ytimg.com/vi/tPR36FI4oGU/hqdefault.jpg");
   await mobile.OpenSidebar();
   await help_menu.getByText("Visual Glossary").tap();
   await expect(page.getByText("Helioviewer - Glossary")).toBeVisible();
