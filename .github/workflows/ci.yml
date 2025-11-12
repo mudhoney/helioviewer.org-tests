@@ -58,7 +58,7 @@ jobs:
   playwright-e2e-tests:
     strategy:
       matrix:
-        shardIndex: [1, 2, 3, 4, 5]
+        shardIndex: [1,2,3,4,5]
         shardTotal: [5]
       fail-fast: false
 
@@ -136,7 +136,7 @@ jobs:
           npx playwright install --with-deps
       - name: Run Playwright tests
         run: |
-          npx playwright test --shard=${{matrix.shardIndex}}/${{matrix.shardTotal}} ./mobile/sidebar.spec.ts 
+          npx playwright test --shard=${{matrix.shardIndex}}/${{matrix.shardTotal}}
       - name: Upload blob report to GitHub Actions Artifacts
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
