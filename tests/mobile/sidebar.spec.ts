@@ -144,7 +144,7 @@ test("[Mobile] Test Help Links", async ({ page, context }) => {
   await expect(page.getByText("Coronal Mass Ejection (CME)")).toBeVisible();
   await expect(page.getByText("Solar Terrestrial Relations Observatory")).toBeVisible();
   await expect(page).toHaveScreenshot({
-    mask: [page.locator(".youtube-player"), page.locator("#hv-header")]
+    mask: [page.locator(".youtube-player")]
   });
   await mobile.CloseDialog();
 
